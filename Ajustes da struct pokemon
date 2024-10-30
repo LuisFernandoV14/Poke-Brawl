@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <locale.h>
+
+typedef struct Pokemon
+{
+	 //nome do pokemon
+	char nome[20];
+	//numero do pokemon na pokedex (vai ser util depois)
+	int dex; 
+	// status dos pokemon
+	int hp;
+	int ataque;
+	int defesa;
+	int ataqueEspecial;
+	int defesaEspecial;
+	int speed;
+	
+} pkmn;
+
+void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[])
+{
+	int i;
+	
+	for(i = 0; i < 24; i++) //tamanho provis rio pq eu n sei quantos pokemon a gente tem lol	
+	{
+		if(pkdex[i].dex == 0) 
+		{ 
+			strcpy(pkdex[i].nome, pokemon.nome);
+			pkdex[i].dex = pokemon.dex;
+			pkdex[i].hp = pokemon.hp;
+			pkdex[i].ataque = pokemon.ataque;
+			pkdex[i].defesa = pokemon.defesa;
+			pkdex[i].ataqueEspecial = pokemon.ataqueEspecial;
+			pkdex[i].defesaEspecial = pokemon.defesaEspecial;
+			pkdex[i].speed = pokemon.speed;
+			return;
+			
+		}
+		// printf("\n%d", pkdex[i].dex);
+		/* (teste) ; */
+	}
+
+
+}
