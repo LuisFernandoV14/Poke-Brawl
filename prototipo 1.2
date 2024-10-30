@@ -5,11 +5,17 @@
 
 typedef struct Pokemon
 {
-	char nome[20]; //nome do pokemon
-	int dex; //numero do pokemon na pokedex (vai ser util depois)
-	int hp; //vida do pokemon
-	int speed; //velocidade do pokemon
-	char itemEquipado[25]; //item que o pokemon esta equipado
+	 //nome do pokemon
+	char nome[20];
+	//numero do pokemon na pokedex (vai ser util depois)
+	int dex; 
+	// status dos pokemon
+	int hp;
+	int ataque;
+	int defesa;
+	int ataqueEspecial;
+	int defesaEspecial;
+	int speed;
 } pkmn;
 
 typedef struct Player
@@ -90,13 +96,16 @@ void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[])
 			strcpy(pkdex[i].nome, pokemon.nome);
 			pkdex[i].dex = pokemon.dex;
 			pkdex[i].hp = pokemon.hp;
+			pkdex[i].ataque = pokemon.ataque;
+			pkdex[i].defesa = pokemon.defesa;
+			pkdex[i].ataqueEspecial = pokemon.ataqueEspecial;
+			pkdex[i].defesaEspecial = pokemon.defesaEspecial;
 			pkdex[i].speed = pokemon.speed;
-			strcpy(pkdex[i].itemEquipado, pokemon.itemEquipado);
 			return;
-			printf("\n%d", pkdex[i].dex);
+			
 		}
-		// printf("\n%d", pkdex[i].dex);
-		/* (teste) ; */
+	
+		/* (teste) printf("\n%d", pkdex[i].dex); (teste)* /
 	}
 
 
