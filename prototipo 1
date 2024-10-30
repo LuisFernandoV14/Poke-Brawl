@@ -20,12 +20,12 @@ typedef struct Player
 } player;
 
 
-/* funÁıes */
+/* fun√ß√µes */
 void construirPlayer(player *treinador); //foi o jeito que eu pensei de fazer um metodo construtor em C
 void pokedex(pkmn pkdex[]); 
 void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[]); //adiciona um pokemon na lista pokedex
 void printarpkmn(pkmn pokemon, pkmn vetor[]); 
-/* funÁıes */
+/* fun√ß√µes */
 
 int main()
 {
@@ -72,11 +72,11 @@ void construirPlayer(player *treinador)
 //	system("pause"); system("cls"); //limpa a tela pra ficar bunitinho
 	
 	/* eu sou incapaz de usar fgets fgets(treinador->nome, 20, stdin); */ //eu consegui usar, mas eu ainda prefiro usar scanf
-	printf("Vamos comeÁar pelo seu nome: ");
+	printf("Vamos come√ßar pelo seu nome: ");
 	fflush(stdin);
 	scanf("%s", treinador->nome);
 	
-	treinador->dinheiro = 1000; //inicializa o dinheiro inicial do jogador, (1000 È um valor tempor·rio)
+	treinador->dinheiro = 1000; //inicializa o dinheiro inicial do jogador, (1000 √© um valor tempor√°rio)
 	
 	int i;
 	for(i = 0; i < 6; i++) {strcpy(treinador->timepokemon[i], "placeholder");} //inicializa todos os pokemons como placeholders
@@ -86,7 +86,7 @@ void construirPlayer(player *treinador)
 
 void pokedex(pkmn pkdex[])
 {
-	pkmn *listadepokemons = (pkmn *)malloc(sizeof(int) * 6); //tamanho provisÛrio pq eu n sei quantos pokemon a gente tem lol
+	pkmn *listadepokemons = (pkmn *)malloc(sizeof(int) * 6); //tamanho provis√≥rio pq eu n sei quantos pokemon a gente tem lol
 	int i;
 	for(i = 0; i < 24; i++) { listadepokemons[i].dex = 0; /* (teste) printf("%d\n", listadepokemons[i]); */ }
 	/* printf("\n\n"); */
@@ -99,7 +99,7 @@ void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[])
 {
 	int i;
 	
-	for(i = 0; i < 24; i++) //tamanho provisÛrio pq eu n sei quantos pokemon a gente tem lol	
+	for(i = 0; i < 24; i++) //tamanho provis√≥rio pq eu n sei quantos pokemon a gente tem lol	
 	{
 		if(pkdex[i].dex == 0) 
 		{ 
@@ -125,7 +125,7 @@ void printarpkmn(pkmn pokemon, pkmn vetor[])
 	{
 		if(pokemon.dex == vetor[i].dex)
 		{
-			printf("O pokemon na posiÁ„o %d È: %s \n", pokemon.dex, pokemon.nome);
+			printf("O pokemon na posi√ß√£o %d √©: %s \n", pokemon.dex, pokemon.nome);
 			fflush(stdout);
 		}
 	}
