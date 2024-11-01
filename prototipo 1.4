@@ -32,6 +32,7 @@ void construirPlayer(player *treinador);
 void printatreinador(player treinador);
 void imprimirpkdex(pkmn pokedex[]);
 void printarpkmn_tochoice(pkmn pokedex[]);
+int escolhageral(void);
 int verificatimes(pkmn time[]);
 //funcoes----------------------------------
 
@@ -82,27 +83,20 @@ int main()
 	//código...
  	//----------//Função para atribuir os pokémon na dex//-----------//
 
+	printf("%s escolha um Pokémon!\n\n", treinador1.nome);
+ 	treinador1.timepokemon[0] = pkdex[escolhageral()];
+  	printf("%s escolha um Pokémon!\n\n", treinador2.nome);
+  	treinador2.timepokemon[0] = pkdex[escolhageral()];
+   	
+	int j = 1;
+ 	while(j < 6){
+		printf("%s escolha outro Pokémon!\n\n", treinador1.nome);
+  		treinador1.timepokemon[j] = pkdex[escolhageral()];
 
-	//Parte de Seleção, provavelmente vai virar uma função------------
- 	do{
-  		//imprime a pokédex na tela
-  		imprimirpkdex(pkmn pkdex[30]);
-    
-	   	int option;
-	
-	   	printf("Digite o número do pokémon para abrir as informações: ");
-	    	scanf("%d", &option);
-      		system("cls");
-	
-	     	printarpkmn_tochoice(pkmn pkdex[option - 1]);
-
-	 	int confirmacao;
-		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar);
-  		scanf("%d", &confirmacao)
-	}while(confirmacao == 0);
-      	
-      	//---------------------------------------------------------------
-
+    		printf("%s escolha outro Pokémon!\n\n", treinador2.nome);
+  		treinador1.timepokemon[j] = pkdex[escolhageral()];
+		j++;
+  	}
  	
 	return 0;
 }
@@ -152,6 +146,30 @@ void printarpkmn_tochoice(pkmn pokedex[]){
 	
 }
 
+int escolhageral(void){
+
+	do{
+  		//imprime a pokédex na tela
+  		imprimirpkdex(pkmn pkdex[30]);
+    
+	   	int option;
+	
+	   	printf("Digite o número do pokémon para abrir as informações: ");
+	    	scanf("%d", &option);
+      		system("cls");
+	
+	     	printarpkmn_tochoice(pkmn pkdex[option - 1]);
+
+	 	int confirmacao;
+		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar);
+  		scanf("%d", &confirmacao)
+	} while(confirmacao == 0);
+
+ 	return option - 1;
+ 
+}
+
+/* Virou inútil ------------------------------
 int verificatimes(pkmn time[]){
 	
 	for(int i = 0; i < 6; i++){
@@ -161,3 +179,4 @@ int verificatimes(pkmn time[]){
 	
 	return 1;
 }
+--------------------------------------------*/
