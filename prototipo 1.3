@@ -20,13 +20,12 @@ typedef struct Player
 } player;
 
 
-/* fun  es */
-void construirPlayer(player *treinador); //foi o jeito que eu pensei de fazer um metodo construtor em C
-//void pokedex(pkmn pkdex[]); 
-void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[]); //adiciona um pokemon na lista pokedex
-void printarpkmn(pkmn pokemon, pkmn vetor[]); 
+//funcoes----------------------------------
+void construirPlayer(player *treinador);
+void imprimirpkdex(pkmn pokedex[])
 void printatreinador(player treinador);
-/* fun  es */
+//void pokedex(pkmn pkdex[]); 
+//funcoes----------------------------------
 
 int main()
 {
@@ -51,20 +50,9 @@ int main()
 	printatreinador(treinador1);
 	printatreinador(treinador2);
 	
-	// declara, adiciona na pokedex e printa o nome dos pokemon (n ta funcionando por algum motivo maligno)
-	
 	pkmn umbreon = {"Umbreon", 2, 20, 14, "nenhum"};
 	pkmn gardevoir = {"Gardevoir", 1, 15, 10, "nenhum"};
 	pkmn garchomp = {"Garchomp", 9, 25, 9, "nenhum"};
-
-	adicionarNaPokedex(umbreon, pkdex);
-	adicionarNaPokedex(gardevoir, pkdex);
-	adicionarNaPokedex(garchomp, pkdex);
-
-	printf("\n\n");
-	printarpkmn(umbreon, pkdex);
-	printarpkmn(gardevoir, pkdex);
-	printarpkmn(garchomp, pkdex);
 	
 	return 0;
 }
