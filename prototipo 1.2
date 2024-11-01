@@ -79,27 +79,14 @@ void construirPlayer(player *treinador)
 	
 }
 
-void adicionarNaPokedex(pkmn pokemon, pkmn pkdex[])
-{
-	int i;
+void imprimirpkdex(pkmn pokedex[]){
 	
-	for(i = 0; i < 24; i++) //tamanho provis rio pq eu n sei quantos pokemon a gente tem lol	
-	{
-		if(pkdex[i].dex == 0) 
-		{ 
-			strcpy(pkdex[i].nome, pokemon.nome);
-			pkdex[i].dex = pokemon.dex;
-			pkdex[i].hp = pokemon.hp;
-			pkdex[i].speed = pokemon.speed;
-			strcpy(pkdex[i].itemEquipado, pokemon.itemEquipado);
-			return;
-			printf("\n%d", pkdex[i].dex);
-		}
-		// printf("\n%d", pkdex[i].dex);
-		/* (teste) ; */
+	for(int i = 0; i < 30; i++){
+		
+		printf("%d - %s\n", i+1, pokedex[i].nome);
+		
 	}
-
-
+	
 }
 
 void printatreinador(player treinador){
@@ -107,21 +94,6 @@ void printatreinador(player treinador){
 	printf("Treinador: %s\n", treinador.nome);
 	printf("Dinheiro: %d\n\n", treinador.dinheiro);
 
-}
-
-void printarpkmn(pkmn pokemon, pkmn vetor[])
-{
-	int i;
-	for(i = 0; i < 30; i++)
-	{
-		if(pokemon.dex == vetor[i].dex)
-		{
-			printf("O pokemon na posi  o %d  : %s \n", pokemon.dex, pokemon.nome);
-			fflush(stdout);
-		}
-	}
-
-	
 }
 
 /* Sla q q é isso menor
