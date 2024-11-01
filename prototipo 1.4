@@ -31,6 +31,7 @@ typedef struct Player
 void construirPlayer(player *treinador);
 void printatreinador(player treinador);
 void imprimirpkdex(pkmn pokedex[]);
+void printarpkmn_tochoice(pkmn pokedex[]);
 //funcoes----------------------------------
 
 int main()
@@ -101,5 +102,22 @@ void imprimirpkdex(pkmn pokedex[]){
 		printf("%d - %s\n", i+1, pokedex[i].nome);
 		
 	}
+	
+}
+
+void printarpkmn_tochoice(pkmn pokedex[]){
+	
+	printf("NOME: %s | Nº DEX: %d\n\n", pokedex[].nome, pokedex[].dex);
+	printf("HP: %d\n", pokedex[].hp);
+	printf("ATAQUE: %d\n", pokedex[].ataque);
+	printf("DEFESA: %d\n", pokedex[].defesa);
+	printf("ATAQUE ESPECIAL: %d\n", pokedex[].ataqueEspecial);
+	printf("DEFESA ESPECIAL: %d\n", pokedex[].defesaEspecial);
+	printf("SPEED: %d\n\n", pokedex[].speed);
+	printf("MOVES\n");
+	printf();
+	printf();
+	printf();
+	printf();
 	
 }
