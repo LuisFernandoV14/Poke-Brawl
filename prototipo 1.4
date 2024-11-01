@@ -5,11 +5,18 @@
 
 typedef struct Pokemon
 {
-	char nome[20]; //nome do pokemon
-	int dex; //numero do pokemon na pokedex (vai ser util depois)
-	int hp; //vida do pokemon
-	int speed; //velocidade do pokemon
-	char itemEquipado[25]; //item que o pokemon esta equipado
+	 //nome do pokemon
+	char nome[20];
+	//numero do pokemon na pokedex (vai ser util depois)
+	int dex; 
+	// status dos pokemon
+	int hp;
+	int ataque;
+	int defesa;
+	int ataqueEspecial;
+	int defesaEspecial;
+	int speed;
+	
 } pkmn;
 
 typedef struct Player
@@ -22,9 +29,8 @@ typedef struct Player
 
 //funcoes----------------------------------
 void construirPlayer(player *treinador);
-void imprimirpkdex(pkmn pokedex[])
 void printatreinador(player treinador);
-//void pokedex(pkmn pkdex[]); 
+void imprimirpkdex(pkmn pokedex[]);
 //funcoes----------------------------------
 
 int main()
@@ -49,10 +55,23 @@ int main()
 	
 	printatreinador(treinador1);
 	printatreinador(treinador2);
-	
-	pkmn umbreon = {"Umbreon", 2, 20, 14, "nenhum"};
-	pkmn gardevoir = {"Gardevoir", 1, 15, 10, "nenhum"};
-	pkmn garchomp = {"Garchomp", 9, 25, 9, "nenhum"};
+
+ 	----------//Declaração de Pokémons//-----------
+	pkmn emboar = {"Emboar", 1, 110, 123, 65, 100, 65, 65};
+ 	pkmn dragonite = {"Dragonite", 2, 91, 134, 95, 100, 100, 80};
+	pkmn golurk = {"Golurk", 3, 89, 124, 80, 55, 80, 55};
+	pkmn salamence = {"Salamence", 4, 95, 135, 80, 110, 80, 100};
+ 	pkmn lapras = {"Lapras", 5, 130, 85, 80, 85, 95, 60};
+	pkmn pidgeot = {"Pidgeot", 6, 83, 80, 75, 70, 70, 101};
+	pkmn muk = {"Muk", 7, 105, 105, 75, 65, 100, 50};
+	pkmn alakazam = {"Alakazam", 8, 55, 40, 45, 135, 95, 120};
+	pkmn tyranitar = {"Tyranitar", 9, 100, 134, 110, 95, 100, 61};
+ 	pkmn metagross = {"Metagross", 10, 80, 135, 130, 95, 90, 70}; 
+	pkmn greninja = {"Greninja", 11, 72, 95, 67, 103, 71, 122};
+	pkmn pinsir = {"Pinsir", 12, 65, 125, 100, 55, 70, 85};
+ 	pkmn electivire = {"Electivire", 13, 75, 123, 67, 95, 85, 95};
+	pkmn primarina = {"Primarina", 14, 80, 74, 74, 126, 116, 60};
+	pkmn honchkrow = {"Honchkrow", 15, 100, 125, 52, 105, 52, 71};
 	
 	return 0;
 }
@@ -67,6 +86,14 @@ void construirPlayer(player *treinador)
 	
 }
 
+void printatreinador(player treinador){
+
+	printf("Treinador: %s\n", treinador.nome);
+	printf("Dinheiro: %d\n\n", treinador.dinheiro);
+
+}
+
+
 void imprimirpkdex(pkmn pokedex[]){
 	
 	for(int i = 0; i < 30; i++){
@@ -76,23 +103,3 @@ void imprimirpkdex(pkmn pokedex[]){
 	}
 	
 }
-
-void printatreinador(player treinador){
-
-	printf("Treinador: %s\n", treinador.nome);
-	printf("Dinheiro: %d\n\n", treinador.dinheiro);
-
-}
-
-/* Sla q q é isso menor
-void pokedex(pkmn pkdex[])
-{
-	pkmn *listadepokemons = (pkmn *)malloc(sizeof(int) * 6); //tamanho provis rio pq eu n sei quantos pokemon a gente tem lol
-	int i;
-	for(i = 0; i < 30; i++) { listadepokemons[i].dex = 0; /* (teste) printf("%d\n", listadepokemons[i]);  }
-	/* printf("\n\n"); 
-
-	
-	pkdex = listadepokemons;
-}
-*/
