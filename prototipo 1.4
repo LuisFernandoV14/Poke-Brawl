@@ -81,19 +81,29 @@ int main()
 	//----------//Função para atribuir os pokémon na dex//-----------//
 	//código...
  	//----------//Função para atribuir os pokémon na dex//-----------//
-  
-	//imprime a pokédex na tela
-  	imprimirpkdex(pkmn pkdex[30]);
 
-	//Parte de Seleção, provavelmente vai virar uma funão------------
-   	int option;
 
-   	printf("Digite o número do pokémon para abrir as informações: ");
-    	scanf("%d", &option);
-
-     	printarpkmn_tochoice(pkmn pkdex[option - 1]);
-      	//---------------------------------------------------------------
+	//Parte de Seleção, provavelmente vai virar uma função------------
+ 	do{
+  		//imprime a pokédex na tela
+  		imprimirpkdex(pkmn pkdex[30]);
+    
+	   	int option;
 	
+	   	printf("Digite o número do pokémon para abrir as informações: ");
+	    	scanf("%d", &option);
+      		system("cls");
+	
+	     	printarpkmn_tochoice(pkmn pkdex[option - 1]);
+
+	 	int confirmacao;
+		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar);
+  		scanf("%d", &confirmacao)
+	}while(confirmacao == 0);
+      	
+      	//---------------------------------------------------------------
+
+ 	
 	return 0;
 }
 
