@@ -31,9 +31,8 @@ typedef struct Player
 void construirPlayer(player *treinador);
 void printatreinador(player treinador);
 void imprimirpkdex(pkmn pokedex[]);
-void printarpkmn_tochoice(pkmn pokedex[]);
-int escolhageral(void);
-int verificatimes(pkmn time[]);
+void printarpkmn_tochoice(pkmn pokedex[], int i);
+int escolhageral(pkmn pkdex[]);
 //funcoes----------------------------------
 
 int main()
@@ -46,12 +45,12 @@ int main()
 	player treinador1; 
 	player treinador2;
 
-	printf("Digite o nome do treinador: ");
+	printf("Digite o nome do treinador1: ");
 	fflush(stdin);
 	fgets(treinador1.nome, 20, stdin);
 	construirPlayer(&treinador1);
 
-	printf("Digite o nome do treinador: ");
+	printf("Digite o nome do treinador2: ");
 	fflush(stdin);
 	fgets(treinador2.nome, 20, stdin);
 	construirPlayer(&treinador2);
@@ -129,17 +128,17 @@ int main()
 	
 
 	printf("%s escolha um Pokémon!\n\n", treinador1.nome);
- 	treinador1.timepokemon[0] = pkdex[escolhageral()];
+ 	treinador1.timepokemon[0] = pkdex[escolhageral(pkdex)];
   	printf("%s escolha um Pokémon!\n\n", treinador2.nome);
-  	treinador2.timepokemon[0] = pkdex[escolhageral()];
+  	treinador2.timepokemon[0] = pkdex[escolhageral(pkdex)];
    	
 	int j = 1;
  	while(j < 6){
 		printf("%s escolha outro Pokémon!\n\n", treinador1.nome);
-  		treinador1.timepokemon[j] = pkdex[escolhageral()];
+  		treinador1.timepokemon[j] = pkdex[escolhageral(pkdex)];
 
     		printf("%s escolha outro Pokémon!\n\n", treinador2.nome);
-  		treinador2.timepokemon[j] = pkdex[escolhageral()];
+  		treinador2.timepokemon[j] = pkdex[escolhageral(pkdex)];
 		j++;
   	}
  	
@@ -161,6 +160,10 @@ void printatreinador(player treinador){
 	printf("Treinador: %s\n", treinador.nome);
 	printf("Dinheiro: %d\n\n", treinador.dinheiro);
 
+	for(){
+		
+	}
+
 }
 
 
@@ -174,54 +177,38 @@ void imprimirpkdex(pkmn pokedex[]){
 	printf("\n");
 }
 
-void printarpkmn_tochoice(pkmn pokedex[]){
+void printarpkmn_tochoice(pkmn pokedex[], int i){
 	
-	printf("NOME: %s | Nº DEX: %d\n\n", pokedex[].nome, pokedex[].dex);
-	printf("HP: %d\n", pokedex[].hp);
-	printf("ATAQUE: %d\n", pokedex[].ataque);
-	printf("DEFESA: %d\n", pokedex[].defesa);
-	printf("ATAQUE ESPECIAL: %d\n", pokedex[].ataqueEspecial);
-	printf("DEFESA ESPECIAL: %d\n", pokedex[].defesaEspecial);
-	printf("SPEED: %d\n\n", pokedex[].speed);
+	printf("NOME: %s | Nº DEX: %d\n\n", pokedex[i].nome, pokedex[i].dex);
+	printf("HP: %d\n", pokedex[i].hp);
+	printf("ATAQUE: %d\n", pokedex[i].ataque);
+	printf("DEFESA: %d\n", pokedex[i].defesa);
+	printf("ATAQUE ESPECIAL: %d\n", pokedex[i].ataqueEspecial);
+	printf("DEFESA ESPECIAL: %d\n", pokedex[i].defesaEspecial);
+	printf("SPEED: %d\n\n", pokedex[i].speed);
 	printf("MOVES\n");
-	printf();
-	printf();
-	printf();
-	printf();
 	
 }
 
-int escolhageral(void){
+int escolhageral(pkmn pkdex[]){
+
+    	int option;
+    	int confirmacao;
 
 	do{
   		//imprime a pokédex na tela
-  		imprimirpkdex(pkmn pkdex[30]);
-    
-	   	int option;
+  		imprimirpkdex(pkdex);
 	
 	   	printf("Digite o número do pokémon para abrir as informações: ");
 	    	scanf("%d", &option);
       		system("cls");
 	
-	     	printarpkmn_tochoice(pkmn pkdex[option - 1]);
+	     	printarpkmn_tochoice(pkdex, option - 1);
 
-	 	int confirmacao;
 		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar);
-  		scanf("%d", &confirmacao)
+  		scanf("%d", &confirmacao);
 	} while(confirmacao == 0);
 
  	return option - 1;
  
 }
-
-/* Virou inútil ------------------------------
-int verificatimes(pkmn time[]){
-	
-	for(int i = 0; i < 6; i++){
-		if(time[i] = )
-			return 0;
-	}
-	
-	return 1;
-}
---------------------------------------------*/
