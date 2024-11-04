@@ -109,7 +109,7 @@ int main()
   		treinador1.timepokemon[j] = pkdex[escolhageral()];
 
     		printf("%s escolha outro Pokémon!\n\n", treinador2.nome);
-  		treinador1.timepokemon[j] = pkdex[escolhageral()];
+  		treinador2.timepokemon[j] = pkdex[escolhageral()];
 		j++;
   	}
  	
