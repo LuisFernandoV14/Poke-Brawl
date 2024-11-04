@@ -93,10 +93,40 @@ int main()
 	//----------//Declaração de Pokémons//-----------//
 
 
+	 //----------//Alocação dos Pokémons na Pokedex//-----------//
+	pkdex[0] = emboar;
+	pkdex[1] = dragonite;
+	pkdex[2] = golurk;
+	pkdex[3] = salamence;
+	pkdex[4] = lapras;
+	pkdex[5] = pidgeot;
+	pkdex[6] = muk;
+	pkdex[7] = alakazam;
+	pkdex[8] = tyranitar;
+	pkdex[9] = metagross;
+	pkdex[10] = greninja;
+	pkdex[11] = pinsir;
+	pkdex[12] = electivire;
+	pkdex[13] = primarina;
+	pkdex[14] = honchkrow;
+	pkdex[15] = chandelure;
+	pkdex[16] = espeon;
+	pkdex[17] = cubone;
+	pkdex[18] = ninetalesdealola;
+	pkdex[19] = purugly;
+	pkdex[20] = nidoking;
+	pkdex[21] = venusaur;
+	pkdex[22] = charizard;
+	pkdex[23] = gallade;
+	pkdex[24] = gardevoir;
+	pkdex[25] = magneton;
+	pkdex[26] = decidueye;
+	pkdex[27] = umbreon;
+	pkdex[28] = leavanny;
+	pkdex[29] = lucario;
+	//----------//Alocação dos Pokémons na Pokedex//-----------//
 
-	//----------//Função para atribuir os pokémon na dex//-----------//
-	//código...
- 	//----------//Função para atribuir os pokémon na dex//-----------//
+	
 
 	printf("%s escolha um Pokémon!\n\n", treinador1.nome);
  	treinador1.timepokemon[0] = pkdex[escolhageral()];
