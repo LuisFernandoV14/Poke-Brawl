@@ -160,9 +160,10 @@ void printatreinador(player treinador){
 	printf("Treinador: %s\n", treinador.nome);
 	printf("Dinheiro: %d\n\n", treinador.dinheiro);
 
-	for(){
-		
+	for(int i = 0; i < 6; i++){
+		printf("%d - %s\n", i + 1, treinador.timepokemon[i]);
 	}
+	printf("\n");
 
 }
 
@@ -205,7 +206,7 @@ int escolhageral(pkmn pkdex[]){
 	
 	     	printarpkmn_tochoice(pkdex, option - 1);
 
-		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar);
+		printf("Digite:\n1 - Confirmar Escolha do Pokémon\n0 - Para Voltar");
   		scanf("%d", &confirmacao);
 	} while(confirmacao == 0);
 
