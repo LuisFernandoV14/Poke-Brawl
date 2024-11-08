@@ -3,6 +3,18 @@
 #include <string.h>
 #include <locale.h>
 
+typedef struct ataque
+{
+	char nome[25];
+	char tipo[10];
+	int pp;
+	int categoria;
+	int poder;
+	int prioridade; 
+	int accuracy; 
+	int critico; 
+} golpe;
+
 typedef struct Pokemon
 {
 	//nome do pokemon
@@ -25,19 +37,6 @@ typedef struct Player
 	int dinheiro; //dinheiro dos jogadores
 	pkmn timepokemon[6]; // pokemons dos jogadores
 } player;
-
-typedef struct ataque
-{
-	int pp;
-	int categoria;
-	int poder;
-	int prioridade; 
-	int accuracy; 
-	int critico; 
-	char nome[25];
-	char tipo[10];
-} golpe;
-
 
 //funcoes----------------------------------
 void construirPlayer(player *treinador);
