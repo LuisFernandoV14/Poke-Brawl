@@ -5,7 +5,7 @@
 
 typedef struct Pokemon
 {
-	 //nome do pokemon
+	//nome do pokemon
 	char nome[20];
 	//numero do pokemon na pokedex (vai ser util depois)
 	int dex; 
@@ -25,6 +25,18 @@ typedef struct Player
 	int dinheiro; //dinheiro dos jogadores
 	pkmn timepokemon[6]; // pokemons dos jogadores
 } player;
+
+typedef struct ataque
+{
+	int pp;
+	int categoria;
+	int poder;
+	int prioridade; 
+	int accuracy; 
+	int critico; 
+	char nome[25];
+	char tipo[10];
+} golpe;
 
 
 //funcoes----------------------------------
