@@ -13,7 +13,7 @@ typedef struct ataque
 	int prioridade; 
 	int accuracy; 
 	int critico; 
-} golpe;
+} move;
 
 typedef struct Pokemon
 {
