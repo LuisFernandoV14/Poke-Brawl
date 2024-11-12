@@ -113,10 +113,18 @@ int main() {
         printf("%s, escolha um Pokémon!\n\n", treinador1.nome);
         treinador1.timepokemon[j] = pkdex[escolhageral(pkdex)];
         pkdex[treinador1.timepokemon[j].dex - 1].escolhido = 1;
-
-        printf("%s, escolha um Pokémon!\n\n", treinador2.nome);
+		
+		system(CLEAR);
+		printatreinador(treinador1); // Mostra a equipe dos jogadores com os pokemon escolhidos até então
+   		printatreinador(treinador2);
+        
+		printf("%s, escolha um Pokémon!\n\n", treinador2.nome);
         treinador2.timepokemon[j] = pkdex[escolhageral(pkdex)];
         pkdex[treinador2.timepokemon[j].dex - 1].escolhido = 1;
+        
+        system(CLEAR);
+		printatreinador(treinador1); // Mostra a equipe dos jogadores com os pokemon escolhidos até então
+   		printatreinador(treinador2);
     }
 
     return 0;
@@ -133,6 +141,7 @@ void printatreinador(player treinador) {
     printf("Treinador: %s\n", treinador.nome);
 
     for (int i = 0; i < TIME_SIZE; i++) {
+    	if (!(strcmp(treinador.timepokemon[i].nome, "placeholder"))) {printf("%d - \n", i + 1); continue;}
         printf("%d - %s\n", i + 1, treinador.timepokemon[i].nome);
     }
     printf("\n");
