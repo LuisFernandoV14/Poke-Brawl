@@ -3,7 +3,7 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
-#include <ctype.h> // ta aqui pra evitar que uma função em especifico exploda o código inteiro 
+#include <ctype.h>
 
 #define TOTAL_PKMNS 30
 #define TIME_SIZE 6
@@ -25,6 +25,7 @@ typedef struct Pokemon {
 typedef struct Player {
     char nome[15]; // Nome dos jogadores
     pkmn timepokemon[TIME_SIZE]; // Pokémons dos jogadores
+    pkmn *pokemonAtivo;
 } player;
 
 typedef struct ataque
@@ -48,6 +49,7 @@ int escolhageral(pkmn pkdex[]);
 float listaDeFraquezas(move ataque, char tipo[]);
 float pegarFraqueza(move ataque, pkmn alvo);
 void dano(pkmn agressor, pkmn *alvo, move ataque);
+int trocarPoke(player *treinador);
 //funcoes----------------------------------
 
 // faz o cls/clear funcionar em ambos Windows e Mac
@@ -126,7 +128,13 @@ int main() {
         system(CLEAR);
 		printatreinador(treinador1); // Mostra a equipe dos jogadores com os pokemon escolhidos até então
    		printatreinador(treinador2);
-    }
+    }		
+	    
+	trocarPoke(&treinador1);    
+	    
+    system("pause");
+    
+
 
     return 0;
 }
@@ -221,8 +229,7 @@ int escolhageral(pkmn pkdex[]) {
     return option - 1;
 }
 
-float pegarFraqueza(move ataque, pkmn alvo)
-{
+float pegarFraqueza(move ataque, pkmn alvo) {
 	if (strcmp(alvo.tipo1, alvo.tipo2) == 0) // Esse if existe para verificar se o pokémon tem só um tipo (tepig é fogo, emboar é fogo e lutador, por exemplo)
 	{ return listaDeFraquezas(ataque, alvo.tipo1); }
 	
@@ -230,8 +237,7 @@ float pegarFraqueza(move ataque, pkmn alvo)
 	{ return listaDeFraquezas(ataque, alvo.tipo1) * listaDeFraquezas(ataque, alvo.tipo2); } 
 }
 
-void dano(pkmn agressor, pkmn *alvo, move ataque) // Lembrando que alvo tem que ser ponteiro porque essa função alteria diretamente o valor de hp do alvo
-{
+void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem que ser ponteiro porque essa função altera diretamente o valor de hp do alvo
 	srand(time(NULL));
 
 	printf("\n\n%s usou %s contra %s\n", agressor.nome, ataque.nome, (*alvo).nome);
@@ -291,8 +297,7 @@ void dano(pkmn agressor, pkmn *alvo, move ataque) // Lembrando que alvo tem que 
 
 }
 
-float listaDeFraquezas(move ataque, char tipo[])
-{
+float listaDeFraquezas(move ataque, char tipo[]) {
 
 	switch (ataque.tipo[0])
 	{
@@ -508,6 +513,35 @@ float listaDeFraquezas(move ataque, char tipo[])
 				break;				
 			}
 		break;		
+	}
+}
+
+int trocarPoke(player *treinador) {
+	int escolha;
+	
+	printatreinador(*treinador);
+	
+	printf("\n\n%s digite a posição do pokémon que você quer enviar para o combate!", (*treinador).nome);
+	do{
+	
+		printf("\n R: ");
+		scanf("%d", &escolha);
+		if((escolha < 1 && escolha > 6)) { (printf("\nNão entendi... por favor escreva novamente"));}
+		fflush(stdin);
+	
+	} while(escolha < 1 || escolha > 6);
+	
+	for (int j = 0; j < 6; j++)
+	{
+		
+		if( escolha == j + 1)
+		{
+			(*treinador).pokemonAtivo = &(*treinador).timepokemon[j];
+			printf("%s: %s, eu escolho você!", (*treinador).nome, (*treinador).pokemonAtivo->nome);
+			return 0;
+		}
+		
+		
 	}
 }
 
