@@ -3,6 +3,7 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
+#include <ctype.h> // ta aqui pra evitar que uma função em especifico exploda o código inteiro 
 
 #define TOTAL_PKMNS 30
 #define TIME_SIZE 6
@@ -170,14 +171,27 @@ void printarpkmn_tochoice(pkmn pokedex[], int i) {
 
 int escolhageral(pkmn pkdex[]) {
     int option;
-    int confirmacao;
-
+    int confirmacao;	
+	int erro;
     do {
-
         imprimirpkdex(pkdex);
+        fflush(stdin);
+		printf("Digite o número do Pokémon para abrir as informações: ");
+		scanf("%d", &option);
+		
+   		while (option) { 
+		   // Se não for um número
+        	if (!isdigit(option)) {
+        		system(CLEAR);
+            	printf("\nOpção Inválida, por favor digite um número\n\n");
+            	erro = 1;
+            	break;
+        	}
+    	}
+    	
+    	if (option >= 1 && option <= 30) { erro = 0; }
+    	if(erro) { continue; }
 
-        printf("Digite o número do Pokémon para abrir as informações: ");
-        scanf("%d", &option);
         system(CLEAR);
 
         // Vai verificar se o pokemon já foi escolhido
