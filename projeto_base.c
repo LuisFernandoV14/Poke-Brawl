@@ -3,7 +3,8 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
-#include <ctype.h>
+#include <ctype.h> // a função isdigit é dessa biblioteca, usamos ela para evitar alguns erros
+#include "moves.h" // biblioteca que tem todos os ataques, optei por deixar separado pois eram muitas linhas de código que teriam que vir antes de começar de fato o jogo na int main
 
 #define TOTAL_PKMNS 30
 #define TIME_SIZE 6
@@ -20,6 +21,8 @@ typedef struct Pokemon {
     int escolhido; // 0 = não foi escolhido, 1 = escolhido
     char tipo1[10];
 	char tipo2[10];
+	char efeitoFixo[20];
+    move moveset[4];
 } pkmn;
 
 typedef struct Player {
@@ -27,18 +30,6 @@ typedef struct Player {
     pkmn timepokemon[TIME_SIZE]; // Pokémons dos jogadores
     pkmn *pokemonAtivo;
 } player;
-
-typedef struct ataque
-{
-	int pp;
-	int categoria;
-	int poder;
-	int prioridade; 
-	int accuracy; 
-	int critico; 
-	char nome[25];
-	char tipo[10];
-} move;
 
 //funcoes----------------------------------
 void construirPlayer(player *treinador);
@@ -50,6 +41,8 @@ float listaDeFraquezas(move ataque, char tipo[]);
 float pegarFraqueza(move ataque, pkmn alvo);
 void dano(pkmn agressor, pkmn *alvo, move ataque);
 int trocarPoke(player *treinador);
+int checarcondicao(pkmn *pokemon);
+void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, move ataque1, move ataque2);
 //funcoes----------------------------------
 
 // faz o cls/clear funcionar em ambos Windows e Mac
@@ -61,40 +54,41 @@ int trocarPoke(player *treinador);
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
-
+    
     // Declara e monta a Pokedex
     pkmn pkdex[TOTAL_PKMNS] = {
-        {"Emboar", 1, 110, 123, 65, 100, 65, 65, 0},
-        {"Dragonite", 2, 91, 134, 95, 100, 100, 80, 0},
-        {"Golurk", 3, 89, 124, 80, 55, 80, 55, 0},
-        {"Salamence", 4, 95, 135, 80, 110, 80, 100, 0},
-        {"Lapras", 5, 130, 85, 80, 85, 95, 60, 0},
-        {"Pidgeot", 6, 83, 80, 75, 70, 70, 101, 0},
-        {"Muk", 7, 105, 105, 75, 65, 100, 50, 0},
-        {"Alakazam", 8, 55, 40, 45, 135, 95, 120, 0},
-        {"Tyranitar", 9, 100, 134, 110, 95, 100, 61, 0},
-        {"Metagross", 10, 80, 135, 130, 95, 90, 70, 0},
-        {"Greninja", 11, 72, 95, 67, 103, 71, 122, 0},
-        {"Pinsir", 12, 65, 125, 100, 55, 70, 85, 0},
-        {"Electivire", 13, 75, 123, 67, 95, 85, 95, 0},
-        {"Primarina", 14, 80, 74, 74, 126, 116, 60, 0},
-        {"Honchkrow", 15, 100, 125, 52, 105, 52, 71, 0},
-        {"Chandelure", 16, 60, 55, 90, 145, 90, 80, 0},
-        {"Espeon", 17, 65, 65, 60, 130, 95, 110, 0},
-        {"Cubone", 18, 50, 50, 95, 40, 50, 35, 0},
-        {"Ninetales de Alola", 19, 73, 67, 75, 81, 100, 109, 0},
-        {"Purugly", 20, 71, 82, 64, 64, 59, 112, 0},
-        {"Nidoking", 21, 81, 102, 77, 85, 75, 85, 0},
-        {"Venusaur", 22, 80, 82, 83, 100, 100, 80, 0},
-        {"Charizard", 23, 78, 84, 78, 109, 85, 100, 0},
-        {"Gallade", 24, 68, 125, 65, 65, 115, 80, 0},
-        {"Gardevoir", 25, 68, 65, 65, 125, 115, 80, 0},
-        {"Magneton", 26, 50, 60, 95, 120, 70, 70, 0},
-        {"Decidueye", 27, 78, 107, 75, 100, 100, 70, 0},
-        {"Umbreon", 28, 95, 65, 110, 60, 130, 65, 0},
-        {"Leavanny", 29, 75, 103, 80, 70, 80, 92, 0},
-        {"Lucario", 30, 70, 110, 70, 115, 70, 90, 0}
-    };
+    {"Emboar", 1, 110, 123, 65, 100, 65, 65, 0, "fogo", "luta"},
+    {"Dragonite", 2, 91, 134, 95, 100, 100, 80, 0, "dragão", "voador"},
+    {"Golurk", 3, 89, 124, 80, 55, 80, 55, 0, "fantasma", "terra"},
+    {"Salamence", 4, 95, 135, 80, 110, 80, 100, 0, "dragão", "voador"},
+    {"Lapras", 5, 130, 85, 80, 85, 95, 60, 0, "água", "gelo"},
+    {"Pidgeot", 6, 83, 80, 75, 70, 70, 101, 0, "normal", "voador"},
+    {"Muk", 7, 105, 105, 75, 65, 100, 50, 0, "veneno", "veneno"},
+    {"Alakazam", 8, 55, 40, 45, 135, 95, 120, 0, "psíquico", "psíquico"},
+    {"Tyranitar", 9, 100, 134, 110, 95, 100, 61, 0, "pedra", "sombrio"},
+    {"Metagross", 10, 80, 135, 130, 95, 90, 70, 0, "ferro", "psíquico"},
+    {"Greninja", 11, 72, 95, 67, 103, 71, 122, 0, "água", "sombrio"},
+    {"Pinsir", 12, 65, 125, 100, 55, 70, 85, 0, "inseto", "inseto"},
+    {"Electivire", 13, 75, 123, 67, 95, 85, 95, 0, "elétrico", "elétrico"},
+    {"Primarina", 14, 80, 74, 74, 126, 116, 60, 0, "água", "fada"},
+    {"Honchkrow", 15, 100, 125, 52, 105, 52, 71, 0, "sombrio", "voador"},
+    {"Chandelure", 16, 60, 55, 90, 145, 90, 80, 0, "fantasma", "fogo"},
+    {"Espeon", 17, 65, 65, 60, 130, 95, 110, 0, "psíquico", "psíquico"},
+    {"Cubone", 18, 50, 50, 95, 40, 50, 35, 0, "terra", "terra"},
+    {"Ninetales de Alola", 19, 73, 67, 75, 81, 100, 109, 0, "gelo", "fada"},
+    {"Purugly", 20, 71, 82, 64, 64, 59, 112, 0, "normal", "normal"},
+    {"Nidoking", 21, 81, 102, 77, 85, 75, 85, 0, "veneno", "terra"},
+    {"Venusaur", 22, 80, 82, 83, 100, 100, 80, 0, "grama", "veneno"},
+    {"Charizard", 23, 78, 84, 78, 109, 85, 100, 0, "fogo", "voador"},
+    {"Gallade", 24, 68, 125, 65, 65, 115, 80, 0, "psíquico", "luta"},
+    {"Gardevoir", 25, 68, 65, 65, 125, 115, 80, 0, "psíquico", "fada"},
+    {"Magneton", 26, 50, 60, 95, 120, 70, 70, 0, "elétrico", "ferro"},
+    {"Decidueye", 27, 78, 107, 75, 100, 100, 70, 0, "grama", "fantasma"},
+    {"Umbreon", 28, 95, 65, 110, 60, 130, 65, 0, "sombrio", "sombrio"},
+    {"Leavanny", 29, 75, 103, 80, 70, 80, 92, 0, "inseto", "grama"},
+    {"Lucario", 30, 70, 110, 70, 115, 70, 90, 0, "luta", "ferro"}
+};
+
 
     // Declara e monta os jogadores
     player treinador1;
@@ -126,13 +120,54 @@ int main() {
         pkdex[treinador2.timepokemon[j].dex - 1].escolhido = 1;
         
         system(CLEAR);
-		printatreinador(treinador1); // Mostra a equipe dos jogadores com os pokemon escolhidos até então
-   		printatreinador(treinador2);
+        
+        // não precisa mais disso aqui pq a função trocarPoke tem printatreinador tbm
+		// printatreinador(treinador1); 
+   		// printatreinador(treinador2);
     }		
 	    
 	trocarPoke(&treinador1);    
+	trocarPoke(&treinador2);
 	    
     system("pause");
+    system(CLEAR);
+    
+    move ataqueEscolhido1;
+    move ataqueEscolhido2;
+    int escolha;
+    
+	do{
+		printf("\n%s, o que deseja fazer?\n\n1. Trocar Pokemon Ativo\n2. Atacar\n R: ", treinador1.nome);
+		scanf("%d", &escolha);
+		
+		if(escolha == 1) { trocarPoke(&treinador1);}
+		if(escolha == 2) 
+		{
+			printf("\n\nQual ataque %s irá usar?\n\n1. %s \n2. %s\n 3. %s\n 4. %s\n  R: ", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->moveset[0], treinador1.pokemonAtivo->moveset[1], treinador1.pokemonAtivo->moveset[2], treinador1.pokemonAtivo->moveset[3]);
+			scanf("%d", &escolha);
+			
+			ataqueEscolhido1 = treinador1.pokemonAtivo->moveset[escolha - 1];
+		}		
+		
+		printf("\n%s, o que deseja fazer?\n\n1. Trocar Pokemon Ativo\n2. Atacar\n R: ", treinador2.nome);
+		scanf("%d", &escolha);
+		
+		if(escolha == 1) { trocarPoke(&treinador2);}
+		if(escolha == 2) 
+		{
+			printf("Qual ataque %s irá usar?\n\n1. %s \n2. %s\n 3. %s\n 4. %s\n  R: ", treinador2.pokemonAtivo->nome, treinador2.pokemonAtivo->moveset[0], treinador2.pokemonAtivo->moveset[1], treinador2.pokemonAtivo->moveset[2], treinador2.pokemonAtivo->moveset[3]);
+			scanf("%d", &escolha);
+			
+			ataqueEscolhido2 = treinador2.pokemonAtivo->moveset[escolha - 1];
+		}
+		
+		combate(treinador1.pokemonAtivo, treinador2.pokemonAtivo, &treinador1, &treinador2, ataqueEscolhido1, ataqueEscolhido2);
+		
+
+		
+		
+	} while();
+    
     
 
 
@@ -253,14 +288,14 @@ void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem qu
 	// Os ataques raramente dão o mesmo dano, existe uma margem de 80 a 100
 	float margin = 80 + rand() % 21;
 	
-	// Duas fórmulas diferentes de dano, caso o ataque for físico ou especial
+	// Duas fórmulas diferentes de dano, caso o ataque for físico e caso for especial
 	float dano = (ataque.categoria == 0) ? ((((2*100/5+2)*agressor.ataque*ataque.poder/(*alvo).defesa)/50)*2) : ((((2*100/5+2)*agressor.ataqueEspecial*ataque.poder/(*alvo).defesaEspecial)/50)+2);
 	dano *= 0.55;
 	
 	// Chama uma função que devolve o quão efetivo é o ataque contra o alvo e guarda o valor em uma variável
 	float efetividade = pegarFraqueza(ataque, *alvo);
 	
-	// IF para calcular o dano após STAB, caso alguns dos tipos do agressor for igual ao do ataque
+	// Em pokemon tem um negocio chamado STAB, se o  ataque for do mesmo tipo do agressor ele dá mais dano (STAB significa Same Type Attack Bonus)
 	if(!(strcmp(agressor.tipo1, ataque.tipo)) || !(strcmp(agressor.tipo2, ataque.tipo))){ dano *= 1.5; }
 	
 	// Esse switch case decide se o ataque é crítico ou não, dependendo do multiplicador de crítico do ataque
@@ -293,7 +328,7 @@ void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem qu
 	
 	(*alvo).hp -= (int)dano;
 	
-	if ((*alvo).hp <= 0) {(*alvo).hp = 0;} // (impede que o hp do alvo fique negativo)
+	if ((*alvo).hp <= 0) {(*alvo).hp = 0; strcpy((*alvo).efeitoFixo, "desmaiado");} // (impede que o hp do alvo fique negativo e faz ele ficar desmaiado)
 
 }
 
@@ -518,15 +553,22 @@ float listaDeFraquezas(move ataque, char tipo[]) {
 
 int trocarPoke(player *treinador) {
 	int escolha;
-	
+	printf("\n");
 	printatreinador(*treinador);
 	
-	printf("\n\n%s digite a posição do pokémon que você quer enviar para o combate!", (*treinador).nome);
+	printf("\n%s, digite a posição do pokémon que você quer enviar para o combate!", (*treinador).nome);
 	do{
 	
 		printf("\n R: ");
 		scanf("%d", &escolha);
-		if((escolha < 1 && escolha > 6)) { (printf("\nNão entendi... por favor escreva novamente"));}
+		if((escolha < 1 && escolha > 6)) { 
+			(printf("Não entendi... por favor escreva novamente"));
+		}
+		
+//		if(( !(strcmp((*treinador).timepokemon[escolha].nome, (*treinador).pokemonAtivo->nome) ))) { // impede que o usuário troque pro mesmo pokemon
+//			printf("%s já está em batalha", (*treinador).pokemonAtivo->nome);
+//			continue;
+//		}		
 		fflush(stdin);
 	
 	} while(escolha < 1 || escolha > 6);
@@ -537,13 +579,116 @@ int trocarPoke(player *treinador) {
 		if( escolha == j + 1)
 		{
 			(*treinador).pokemonAtivo = &(*treinador).timepokemon[j];
-			printf("%s: %s, eu escolho você!", (*treinador).nome, (*treinador).pokemonAtivo->nome);
+			printf("\n%s enviou %s para lutar!\n\n", (*treinador).nome, (*treinador).pokemonAtivo->nome);
 			return 0;
 		}
 		
-		
 	}
 }
+
+int checarcondicao(pkmn *pokemon)
+{
+	if (!(strcpy((*pokemon).efeitoFixo, "desmaiado"))) { return 1; }
+	return 0;
+	
+//	if (!(strcpy(*pokemon.efeitoAtivo, "queimando"))) { 
+//	
+//	
+//	return 1; }
+//	
+	//ai aqui tinha que ter que efeitos a gente tem no jogo, que eu n sei
+}
+
+void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, move ataque1, move ataque2) {
+	
+	int caminho = 1;
+	
+	srand(time(NULL));
+	
+	if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); caminho = 2;}
+	if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); caminho = 3;}
+	
+	switch (caminho) /* OBS: Isso serve para ver quem vai atacar primeiro, mas ambos atacam */
+	{
+		case 1: // Caso ambos pokemon estiverem vivos
+		
+			if (ataque1.prioridade > ataque2.prioridade) // se o ataque do p1 tiver prioridade maior
+			{
+				dano(*pkmn1, pkmn2, ataque1);	// agressor - alvo - ataque
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				return;
+				
+			} else if (ataque1.prioridade < ataque2.prioridade) // se o ataque do p2 tiver prioridade maior
+			{
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(*pkmn1, pkmn2, ataque1);	
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				return;
+			}
+				
+			// se ambos ataques tiverem mesma prioridade
+			
+			if ((*pkmn1).speed > (*pkmn2).speed) // se o p1 tem mais speed
+			{
+				dano(*pkmn1, pkmn2, ataque1);	
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				return;
+			
+				
+			} else //MUDAR // se o p2 tem mais speed
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(*pkmn1, pkmn2, ataque1);	
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				return;
+				
+			// se ambos pokemon tiverem speed igual e os ataques tiverem prioridade igual
+			
+			if(rand() % 2 == 0) // vai no aleatorio
+			{
+				dano(*pkmn1, pkmn2, ataque1);	
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				return;
+			}
+			else 
+				dano(*pkmn2, pkmn1, ataque2);	
+				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(*pkmn1, pkmn2, ataque1);	
+				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				return;
+		
+		break;
+		
+		case 2: // Caso o pokemon do treinador 1 morreu antes de atacar por causa de alguma condição
+		
+			dano(*pkmn2, pkmn1, ataque2);	
+			if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+			return;
+			
+		break;
+		
+		case 3: // Caso o pokemon do treinador 2 morreu antes de atacar por causa de alguma condição
+		
+			dano(*pkmn1, pkmn2, ataque1);
+			if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+			return;	
+			
+		break;		
+	}
+}
+
+// tenho que botar a funcao de trocar o pokemon pra nao funcionar caso o pokemon ativo seja escolhido novamente
+// atribuir os ataques aos pokemon -> Luis Gustavo
+// dar continuação a mecanica de turnos de combate (no momento tem infinitos turnos)
+// criar a função dos ataques 
+// terminar a função checarCondicao
 
 /* ----- Fórmulas de cálculo de dano ----- //
 ((((2*LEVEL/5+2)*ATKSTAT*ATKPOWER/DEFSTAT)/50)+2) IFS: *STAB*WEAKNESS/RESISTANCE*CRITICAL*OTHER*(MARGIN/100)
