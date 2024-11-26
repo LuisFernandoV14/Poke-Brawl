@@ -3,33 +3,35 @@
 #include <string.h>
 #include <locale.h>
 #include <time.h>
-#include <ctype.h> // a função isdigit é dessa biblioteca, usamos ela para evitar alguns erros
+#include <ctype.h>
 #include "moves.h" // biblioteca que tem todos os ataques, optei por deixar separado pois eram muitas linhas de código que teriam que vir antes de começar de fato o jogo na int main
 
 #define TOTAL_PKMNS 30
 #define TIME_SIZE 6
 
-typedef struct Pokemon {
-    char nome[20];
-    int dex;
-    int hp;
-    int ataque;
-    int defesa;
-    int ataqueEspecial;
-    int defesaEspecial;
-    int speed;
-    int escolhido; // 0 = não foi escolhido, 1 = escolhido
-    char tipo1[10];
-	char tipo2[10];
-	char efeitoFixo[20];
-    move moveset[4];
-} pkmn;
-
-typedef struct Player {
-    char nome[15]; // Nome dos jogadores
-    pkmn timepokemon[TIME_SIZE]; // Pokémons dos jogadores
-    pkmn *pokemonAtivo;
-} player;
+//typedef struct Pokemon {
+//    char nome[20];
+//    int dex;
+//    int hpMaximo; // existem funções, como queimar(), que usam o valor do hp total do pokemon, nao do atual
+//    int hp;
+//    int ataque;
+//    int defesa;
+//    int ataqueEspecial;
+//    int defesaEspecial;
+//    int speed;
+//    int escolhido; // 0 = não foi escolhido, 1 = escolhido
+//    char tipo1[10];
+//	char tipo2[10];
+//	char efeitoFixo[20];
+//    move moveset[4];
+//    int buffsEdebuffs[5]; // linhas: 1 - ataque, 2 - defesa, 3 - atkEspecial, 4 - defEspecial, 5 - speed 
+//} pkmn;
+//
+//typedef struct Player {
+//    char nome[15]; // Nome dos jogadores
+//    pkmn timepokemon[TIME_SIZE]; // Pokémons dos jogadores
+//    pkmn *pokemonAtivo;
+//} player;
 
 //funcoes----------------------------------
 void construirPlayer(player *treinador);
@@ -39,9 +41,10 @@ void printarpkmn_tochoice(pkmn pokedex[], int i);
 int escolhageral(pkmn pkdex[]);
 float listaDeFraquezas(move ataque, char tipo[]);
 float pegarFraqueza(move ataque, pkmn alvo);
-void dano(pkmn agressor, pkmn *alvo, move ataque);
+void dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador);
 int trocarPoke(player *treinador);
-int checarcondicao(pkmn *pokemon);
+void inicializa(pkmn *pokemon);
+int checarcondicao(player *treinador);
 void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, move ataque1, move ataque2);
 //funcoes----------------------------------
 
@@ -57,38 +60,37 @@ int main() {
     
     // Declara e monta a Pokedex
     pkmn pkdex[TOTAL_PKMNS] = {
-    {"Emboar", 1, 110, 123, 65, 100, 65, 65, 0, "fogo", "luta"},
-    {"Dragonite", 2, 91, 134, 95, 100, 100, 80, 0, "dragão", "voador"},
-    {"Golurk", 3, 89, 124, 80, 55, 80, 55, 0, "fantasma", "terra"},
-    {"Salamence", 4, 95, 135, 80, 110, 80, 100, 0, "dragão", "voador"},
-    {"Lapras", 5, 130, 85, 80, 85, 95, 60, 0, "água", "gelo"},
-    {"Pidgeot", 6, 83, 80, 75, 70, 70, 101, 0, "normal", "voador"},
-    {"Muk", 7, 105, 105, 75, 65, 100, 50, 0, "veneno", "veneno"},
-    {"Alakazam", 8, 55, 40, 45, 135, 95, 120, 0, "psíquico", "psíquico"},
-    {"Tyranitar", 9, 100, 134, 110, 95, 100, 61, 0, "pedra", "sombrio"},
-    {"Metagross", 10, 80, 135, 130, 95, 90, 70, 0, "ferro", "psíquico"},
-    {"Greninja", 11, 72, 95, 67, 103, 71, 122, 0, "água", "sombrio"},
-    {"Pinsir", 12, 65, 125, 100, 55, 70, 85, 0, "inseto", "inseto"},
-    {"Electivire", 13, 75, 123, 67, 95, 85, 95, 0, "elétrico", "elétrico"},
-    {"Primarina", 14, 80, 74, 74, 126, 116, 60, 0, "água", "fada"},
-    {"Honchkrow", 15, 100, 125, 52, 105, 52, 71, 0, "sombrio", "voador"},
-    {"Chandelure", 16, 60, 55, 90, 145, 90, 80, 0, "fantasma", "fogo"},
-    {"Espeon", 17, 65, 65, 60, 130, 95, 110, 0, "psíquico", "psíquico"},
-    {"Cubone", 18, 50, 50, 95, 40, 50, 35, 0, "terra", "terra"},
-    {"Ninetales de Alola", 19, 73, 67, 75, 81, 100, 109, 0, "gelo", "fada"},
-    {"Purugly", 20, 71, 82, 64, 64, 59, 112, 0, "normal", "normal"},
-    {"Nidoking", 21, 81, 102, 77, 85, 75, 85, 0, "veneno", "terra"},
-    {"Venusaur", 22, 80, 82, 83, 100, 100, 80, 0, "grama", "veneno"},
-    {"Charizard", 23, 78, 84, 78, 109, 85, 100, 0, "fogo", "voador"},
-    {"Gallade", 24, 68, 125, 65, 65, 115, 80, 0, "psíquico", "luta"},
-    {"Gardevoir", 25, 68, 65, 65, 125, 115, 80, 0, "psíquico", "fada"},
-    {"Magneton", 26, 50, 60, 95, 120, 70, 70, 0, "elétrico", "ferro"},
-    {"Decidueye", 27, 78, 107, 75, 100, 100, 70, 0, "grama", "fantasma"},
-    {"Umbreon", 28, 95, 65, 110, 60, 130, 65, 0, "sombrio", "sombrio"},
-    {"Leavanny", 29, 75, 103, 80, 70, 80, 92, 0, "inseto", "grama"},
-    {"Lucario", 30, 70, 110, 70, 115, 70, 90, 0, "luta", "ferro"}
+    {"Emboar", 1, 212, 212, 123, 65, 100, 65, 65, 0, "fogo", "luta", " "}, 
+    {"Dragonite", 2, 193, 193, 134, 95, 100, 100, 80, 0, "dragão", "voador", " "},
+    {"Golurk", 3, 191, 191, 124, 80, 55, 80, 55, 0, "fantasma", "terra", " "},
+    {"Salamence", 4, 197, 197, 135, 80, 110, 80, 100, 0, "dragão", "voador", " "},
+    {"Lapras", 5, 232, 232, 85, 80, 85, 95, 60, 0, "água", "gelo", " "},
+    {"Pidgeot", 6, 185, 185, 80, 75, 70, 70, 101, 0, "normal", "voador", " "},
+    {"Muk", 7, 207, 207, 105, 75, 65, 100, 50, 0, "veneno", "veneno", " "},
+    {"Alakazam", 8, 157, 157, 40, 45, 135, 95, 120, 0, "psíquico", "psíquico", " "},
+    {"Tyranitar", 9, 202, 202, 134, 110, 95, 100, 61, 0, "pedra", "sombrio", " "},
+    {"Metagross", 10, 182, 182, 135, 130, 95, 90, 70, 0, "ferro", "psíquico", " "},
+    {"Greninja", 11, 174, 174, 95, 67, 103, 71, 122, 0, "água", "sombrio", " "},
+    {"Pinsir", 12, 167, 167, 125, 100, 55, 70, 85, 0, "inseto", "inseto", " "},
+    {"Electivire", 13, 177, 177, 123, 67, 95, 85, 95, 0, "elétrico", "elétrico", " "},
+    {"Primarina", 14, 182, 182, 74, 74, 126, 116, 60, 0, "água", "fada", " "},
+    {"Honchkrow", 15, 202, 202, 125, 52, 105, 52, 71, 0, "sombrio", "voador", " "},
+    {"Chandelure", 16, 162, 162, 55, 90, 145, 90, 80, 0, "fantasma", "fogo", " "},
+    {"Espeon", 17, 167, 167, 65, 60, 130, 95, 110, 0, "psíquico", "psíquico", " "},
+    {"Cubone", 18, 152, 152, 50, 95, 40, 50, 35, 0, "terra", "terra", " "},
+    {"Ninetales de Alola", 19, 175, 175, 67, 75, 81, 100, 109, 0, "gelo", "fada", " "},
+    {"Purugly", 20, 173, 173, 82, 64, 64, 59, 112, 0, "normal", "normal", " "},
+    {"Nidoking", 21, 183, 183, 102, 77, 85, 75, 85, 0, "veneno", "terra", " "},
+    {"Venusaur", 22, 182, 182, 82, 83, 100, 100, 80, 0, "grama", "veneno", " "},
+    {"Charizard", 23, 180, 180, 84, 78, 109, 85, 100, 0, "fogo", "voador", " "},
+    {"Gallade", 24, 170, 170, 125, 65, 65, 115, 80, 0, "psíquico", "luta", " "},
+    {"Gardevoir", 25, 170, 170, 65, 65, 125, 115, 80, 0, "psíquico", "fada", " "},
+    {"Magneton", 26, 152, 152, 60, 95, 120, 70, 70, 0, "elétrico", "ferro", " "},
+    {"Decidueye", 27, 180, 180, 107, 75, 100, 100, 70, 0, "grama", "fantasma", " "},
+    {"Umbreon", 28, 197, 197, 65, 110, 60, 130, 65, 0, "sombrio", "sombrio", " "},
+    {"Leavanny", 29, 177, 177, 103, 80, 70, 80, 92, 0, "inseto", "grama", " "},
+    {"Lucario", 30, 172, 172, 110, 70, 115, 70, 90, 0, "luta", "ferro", " "}
 };
-
 
     // Declara e monta os jogadores
     player treinador1;
@@ -141,9 +143,29 @@ int main() {
 		scanf("%d", &escolha);
 		
 		if(escolha == 1) { trocarPoke(&treinador1);}
-		if(escolha == 2) 
-		{
-			printf("\n\nQual ataque %s irá usar?\n\n1. %s \n2. %s\n 3. %s\n 4. %s\n  R: ", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->moveset[0], treinador1.pokemonAtivo->moveset[1], treinador1.pokemonAtivo->moveset[2], treinador1.pokemonAtivo->moveset[3]);
+		if(escolha == 2) {
+			
+			VezDoJogador1:
+				
+			if(checarcondicao(&treinador1) == 2) { // Checa pra ver se o pokemon usou outrage em algum turno
+				
+				if(treinador1.pokemonAtivo->buffsEdebuffs[5] <= 0){strcpy(treinador1.pokemonAtivo->efeitoTemp, " "); goto VezDoJogador1;} //medida de segurança
+				
+				treinador1.pokemonAtivo->buffsEdebuffs[5] -= 1;
+				
+				
+				for(int a; a < 4; a++)
+				{
+					if(!strcmp(treinador1.pokemonAtivo->moveset[a].nome, "Outrage"))
+					{
+						printf("%s está irado! E por isso não consegue usar outro ataque.", treinador1.pokemonAtivo->nome);
+						ataqueEscolhido1 = treinador1.pokemonAtivo->moveset[a];
+						goto VezDoJogador2;
+					}
+				}
+			}
+		
+			printf("\n\nQual ataque %s irá usar?\n\n1. %s \n2. %s\n3. %s\n 4. %s\n  R: ", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->moveset[0], treinador1.pokemonAtivo->moveset[1], treinador1.pokemonAtivo->moveset[2], treinador1.pokemonAtivo->moveset[3]);
 			scanf("%d", &escolha);
 			
 			ataqueEscolhido1 = treinador1.pokemonAtivo->moveset[escolha - 1];
@@ -153,23 +175,38 @@ int main() {
 		scanf("%d", &escolha);
 		
 		if(escolha == 1) { trocarPoke(&treinador2);}
-		if(escolha == 2) 
-		{
-			printf("Qual ataque %s irá usar?\n\n1. %s \n2. %s\n 3. %s\n 4. %s\n  R: ", treinador2.pokemonAtivo->nome, treinador2.pokemonAtivo->moveset[0], treinador2.pokemonAtivo->moveset[1], treinador2.pokemonAtivo->moveset[2], treinador2.pokemonAtivo->moveset[3]);
+		if(escolha == 2) {
+			
+			VezDoJogador2:
+				
+			if(checarcondicao(&treinador2) == 2) { // Checa pra ver se o pokemon usou outrage em algum turno
+				
+				if(treinador2.pokemonAtivo->buffsEdebuffs[5] <= 0){strcpy(treinador2.pokemonAtivo->efeitoTemp, " "); goto VezDoJogador2;} //medida de segurança
+				
+				treinador2.pokemonAtivo->buffsEdebuffs[5] -= 1;
+				
+				
+				for(int a; a < 4; a++)
+				{
+					if(!strcmp(treinador2.pokemonAtivo->moveset[a].nome, "Outrage"))
+					{
+						printf("%s está irado! E por isso não consegue usar outro ataque.", treinador2.pokemonAtivo->nome);
+						ataqueEscolhido1 = treinador2.pokemonAtivo->moveset[a];
+						goto FimDoTurno;
+					}
+				}
+			}
+				
+			printf("Qual ataque %s irá usar?\n\n1. %s \n2. %s\n3. %s\n4. %s\n  R: ", treinador2.pokemonAtivo->nome, treinador2.pokemonAtivo->moveset[0], treinador2.pokemonAtivo->moveset[1], treinador2.pokemonAtivo->moveset[2], treinador2.pokemonAtivo->moveset[3]);
 			scanf("%d", &escolha);
 			
 			ataqueEscolhido2 = treinador2.pokemonAtivo->moveset[escolha - 1];
 		}
 		
+		FimDoTurno:		
 		combate(treinador1.pokemonAtivo, treinador2.pokemonAtivo, &treinador1, &treinador2, ataqueEscolhido1, ataqueEscolhido2);
 		
-
-		
-		
-	} while();
-    
-    
-
+	} while(1);
 
     return 0;
 }
@@ -210,6 +247,13 @@ void printarpkmn_tochoice(pkmn pokedex[], int i) {
     printf("ATAQUE ESPECIAL: %d\n", pokedex[i].ataqueEspecial);
     printf("DEFESA ESPECIAL: %d\n", pokedex[i].defesaEspecial);
     printf("SPEED: %d\n\n", pokedex[i].speed);
+    
+    
+    strcpy(pokedex[i].efeitoTemp, " ");
+    for(int j = 0; j < 6; j++)
+    {
+    	pokedex[i].buffsEdebuffs[j] = 0; //encapsulamento em C????? oh my god
+	}
 }
 
 int escolhageral(pkmn pkdex[]) {
@@ -272,14 +316,15 @@ float pegarFraqueza(move ataque, pkmn alvo) {
 	{ return listaDeFraquezas(ataque, alvo.tipo1) * listaDeFraquezas(ataque, alvo.tipo2); } 
 }
 
-void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem que ser ponteiro porque essa função altera diretamente o valor de hp do alvo
+void dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembrando que alvo tem que ser ponteiro porque essa função altera diretamente o valor de hp do alvo
+	
 	srand(time(NULL));
 
-	printf("\n\n%s usou %s contra %s\n", agressor.nome, ataque.nome, (*alvo).nome);
+	printf("\n\n%s usou %s contra %s\n", (*agressor).nome, ataque.nome, (*alvo).nome);
 	
 	if(rand() % 99 + 1 > ataque.accuracy) // Checa se o ataque errou ou não
 	{
-		printf("\n\n%s errou o ataque!\n", agressor.nome);
+		printf("\n\n%s errou o ataque!\n", (*agressor).nome);
 		return;
 	}
 
@@ -289,17 +334,19 @@ void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem qu
 	float margin = 80 + rand() % 21;
 	
 	// Duas fórmulas diferentes de dano, caso o ataque for físico e caso for especial
-	float dano = (ataque.categoria == 0) ? ((((2*100/5+2)*agressor.ataque*ataque.poder/(*alvo).defesa)/50)*2) : ((((2*100/5+2)*agressor.ataqueEspecial*ataque.poder/(*alvo).defesaEspecial)/50)+2);
+	float dano = (ataque.categoria == 0) ? (((2*100/5+2)*(*agressor).ataque*ataque.poder/(*alvo).defesa)/50) : (((2*100/5+2)*(*agressor).ataqueEspecial*ataque.poder/(*alvo).defesaEspecial)/50);
 	dano *= 0.55;
 	
 	// Chama uma função que devolve o quão efetivo é o ataque contra o alvo e guarda o valor em uma variável
 	float efetividade = pegarFraqueza(ataque, *alvo);
 	
 	// Em pokemon tem um negocio chamado STAB, se o  ataque for do mesmo tipo do agressor ele dá mais dano (STAB significa Same Type Attack Bonus)
-	if(!(strcmp(agressor.tipo1, ataque.tipo)) || !(strcmp(agressor.tipo2, ataque.tipo))){ dano *= 1.5; }
+	if(!(strcmp((*agressor).tipo1, ataque.tipo)) || !(strcmp((*agressor).tipo2, ataque.tipo))){ dano *= 1.5; }
 	
 	// Esse switch case decide se o ataque é crítico ou não, dependendo do multiplicador de crítico do ataque
 	switch(ataque.critico){
+		case 0: // 0 chances de ser um ataque crítico
+		break;
 		case 1:
 			if(rand() % 16 == 14) {printf("\n\nÉ um ataque crítico!"); dano *= 2;} // uma em 16 chances de ser critico
 		break;
@@ -322,11 +369,39 @@ void dano(pkmn agressor, pkmn *alvo, move ataque) { // Lembrando que alvo tem qu
 	
 	dano *= efetividade;
 	
+	
+	int c = 0;
+	
+	Repetir:	
+	if((*treinador).pokemonAtivo->buffsEdebuffs[6] >= 1) // tem certos ataques que acertam múltiplas vezes
+	{
+		printf("\nAcertou %d vezes", c + 1);
+		(*treinador).pokemonAtivo->buffsEdebuffs[6] -= 1;
+		c++;
+		(*alvo).hp -= (int)dano;
+		goto Repetir;
+	}
+	
+	if(((*treinador).pokemonAtivo->buffsEdebuffs[6] < 0)) {
+		(*treinador).pokemonAtivo->buffsEdebuffs[6] += 1;
+		return; // pokemon nao ataca (acontece deoius de usar giga impact, o pokemon fica 1 turno sem atacar)
+	}
+	
+	// troca o dano do ataque do agressor pelo dano de se bater
+	if(!strcmp(ataque.nome, " ")) { // (o unico ataque com o nome " " é quando pokemon se bate em confusão, e ele tem dano fixo) 
+		dano = 35;
+		(*agressor).hp -= dano;
+		if ((*agressor).hp <= 0) {(*agressor).hp = 0; strcpy((*agressor).efeitoFixo, "desmaiado");} // (impede que o hp do alvo fique negativo e faz ele ficar desmaiado)
+		return;
+	} 
+	
+	(*alvo).hp -= (int)dano;
+	
+	if(strcmp(ataque.nome, "Giga Impact")) {(*treinador).pokemonAtivo->buffsEdebuffs[6] = -1;}
+	
 	if (efetividade >= 2) {printf("\n%s é super efetivo contra %s!\n", ataque.nome, (*alvo).nome);}
 	if (efetividade == 0) {printf("\n%s não tem efeito contra %s...\n", ataque.nome, (*alvo).nome);}
 	if (efetividade == 0.5) {printf("\n%s não é muito efetivo contra %s...\n", ataque.nome, (*alvo).nome);}
-	
-	(*alvo).hp -= (int)dano;
 	
 	if ((*alvo).hp <= 0) {(*alvo).hp = 0; strcpy((*alvo).efeitoFixo, "desmaiado");} // (impede que o hp do alvo fique negativo e faz ele ficar desmaiado)
 
@@ -569,6 +644,7 @@ int trocarPoke(player *treinador) {
 //			printf("%s já está em batalha", (*treinador).pokemonAtivo->nome);
 //			continue;
 //		}		
+
 		fflush(stdin);
 	
 	} while(escolha < 1 || escolha > 6);
@@ -580,22 +656,71 @@ int trocarPoke(player *treinador) {
 		{
 			(*treinador).pokemonAtivo = &(*treinador).timepokemon[j];
 			printf("\n%s enviou %s para lutar!\n\n", (*treinador).nome, (*treinador).pokemonAtivo->nome);
+			inicializa((*treinador).pokemonAtivo);
 			return 0;
 		}
 		
 	}
 }
 
-int checarcondicao(pkmn *pokemon)
-{
-	if (!(strcpy((*pokemon).efeitoFixo, "desmaiado"))) { return 1; }
-	return 0;
+void inicializa(pkmn *pokemon) {
+	for(int j = 0; j < 7; j++)
+    {
+    	(*pokemon).buffsEdebuffs[j] = 0;
+	}
 	
-//	if (!(strcpy(*pokemon.efeitoAtivo, "queimando"))) { 
-//	
-//	
-//	return 1; }
-//	
+	strcpy((*pokemon).efeitoTemp, " ");
+}
+
+int checarcondicao(player *treinador) {
+	if (!strcmp((*treinador).pokemonAtivo->efeitoFixo, "desmaiado")) { return 1; }
+	if (!strcmp((*treinador).pokemonAtivo->efeitoFixo, "queimando")) { queimar(treinador); }
+	if (!strcmp((*treinador).pokemonAtivo->efeitoTemp, "irado")) {return 2;}
+	if (!strcmp((*treinador).pokemonAtivo->efeitoTemp, "confuso")) {
+		if(rand() % 3 == 1)
+			{  
+				(*treinador).pokemonAtivo->buffsEdebuffs[5] -= 1;
+				if((*treinador).pokemonAtivo->buffsEdebuffs[5] <= 0) {(*treinador).pokemonAtivo->buffsEdebuffs[5] = 0; strcpy((*treinador).pokemonAtivo->efeitoTemp, " ");}
+				return 3;
+			} 
+		else 
+		(*treinador).pokemonAtivo->buffsEdebuffs[5] -= 1;
+		if((*treinador).pokemonAtivo->buffsEdebuffs[5] <= 0) {(*treinador).pokemonAtivo->buffsEdebuffs[5] = 0; strcpy((*treinador).pokemonAtivo->efeitoTemp, " ");}
+		return 0;
+	}
+	if (!strcmp((*treinador).pokemonAtivo->efeitoTemp, "hesitante")) {
+		(*treinador).pokemonAtivo->buffsEdebuffs[5] -= 1;
+		if((*treinador).pokemonAtivo->buffsEdebuffs[5] <= 0) {strcpy((*treinador).pokemonAtivo->efeitoTemp, " ");}
+		return 4;
+	}
+	if (!strcmp((*treinador).pokemonAtivo->efeitoTemp, "protegido")) {
+		
+		if((*treinador).pokemonAtivo->buffsEdebuffs[5] == 1) {(*treinador).pokemonAtivo->buffsEdebuffs[5] += 1; return 5;} // primeiro turno é garantido nao tomar dano
+		
+		if ((*treinador).pokemonAtivo->buffsEdebuffs[5] > 1) { // pra cada turno depois do primeiro tem uma chance de 1/n de funcionar, onde n é a quantidade de turnos
+			if(rand() % (3 * (*treinador).pokemonAtivo->buffsEdebuffs[5]) == 1) {
+				(*treinador).pokemonAtivo->buffsEdebuffs[5] += 1;
+				return 5;
+			}
+			strcpy((*treinador).pokemonAtivo->efeitoTemp, " ");
+			(*treinador).pokemonAtivo->buffsEdebuffs[5] = 0;
+			return 0;
+		}
+	}
+	if (!strcmp((*treinador).pokemonAtivo->efeitoFixo, "congelado")) {
+		(*treinador).pokemonAtivo->buffsEdebuffs[5] -= 1;
+		return 6;
+	}
+	if (!strcmp((*treinador).pokemonAtivo->efeitoFixo, "paralisado")) {
+		if(rand() % 4 == 2){ // 25 % de chance de não atacar
+			return 7;	
+		}
+		return 0;
+	
+	}
+
+	return 0;
+
 	//ai aqui tinha que ter que efeitos a gente tem no jogo, que eu n sei
 }
 
@@ -605,8 +730,24 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 	
 	srand(time(NULL));
 	
-	if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); caminho = 2;}
-	if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); caminho = 3;}
+	// checa se tem pokemon desmaiado
+	if (checarcondicao(treinador1) == 1) {printf("\n%s desmaiou!\n", (*pkmn1).nome); trocarPoke(treinador1); caminho = 2;} 
+	if (checarcondicao(treinador2) == 1) {printf("\n%s desmaiou!\n", (*pkmn2).nome); trocarPoke(treinador2); caminho = 3;}
+	
+  	if (checarcondicao(treinador1) == 3) {printf("\n%s está confuso!\n", (*pkmn1).nome); dano(pkmn1, pkmn2, confusionHit, treinador1); caminho = 2;} 
+  	if (checarcondicao(treinador2) == 3) {printf("\n%s está confuso!\n", (*pkmn2).nome); dano(pkmn2, pkmn1, confusionHit, treinador2); caminho = 3;} 
+  	
+  	if (checarcondicao(treinador1) == 4) {printf("\n%s hesitou!\n", (*pkmn1).nome); caminho = 2;} 
+  	if (checarcondicao(treinador2) == 4) {printf("\n%s hesitou!\n", (*pkmn2).nome); caminho = 3;}
+	  
+	if (checarcondicao(treinador1) == 5) {printf("\n%s se protegeu!\n", (*pkmn1).nome); caminho = 3;} 
+  	if (checarcondicao(treinador2) == 5) {printf("\n%s se protegeu!\n", (*pkmn2).nome); caminho = 2;}   
+	
+	if (checarcondicao(treinador1) == 6) {printf("\n%s está congelado e não conseguiu atacar!\n", (*pkmn1).nome); caminho = 2;} 
+  	if (checarcondicao(treinador2) == 6) {printf("\n%s está congelado e não conseguiu atacar!\n", (*pkmn2).nome); caminho = 3;}
+
+	if (checarcondicao(treinador1) == 7) {printf("\n%s está paralisado e não conseguiu atacar!\n", (*pkmn1).nome); caminho = 2;} 
+  	if (checarcondicao(treinador2) == 7) {printf("\n%s está paralisado e não conseguiu atacar!\n", (*pkmn2).nome); caminho = 3;}	
 	
 	switch (caminho) /* OBS: Isso serve para ver quem vai atacar primeiro, mas ambos atacam */
 	{
@@ -614,18 +755,22 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 		
 			if (ataque1.prioridade > ataque2.prioridade) // se o ataque do p1 tiver prioridade maior
 			{
-				dano(*pkmn1, pkmn2, ataque1);	// agressor - alvo - ataque
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);	// agressor - alvo - ataque
+				ataque1.extra(treinador2);
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(pkmn2, pkmn1, ataque2, treinador2);
+				ataque2.extra(treinador1);	
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
 				return;
 				
 			} else if (ataque1.prioridade < ataque2.prioridade) // se o ataque do p2 tiver prioridade maior
 			{
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
-				dano(*pkmn1, pkmn2, ataque1);	
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(pkmn2, pkmn1, ataque2, treinador2);
+				ataque2.extra(treinador1);	
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);
+				ataque1.extra(treinador2);	
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
 				return;
 			}
 				
@@ -633,51 +778,61 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 			
 			if ((*pkmn1).speed > (*pkmn2).speed) // se o p1 tem mais speed
 			{
-				dano(*pkmn1, pkmn2, ataque1);	
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);
+				ataque1.extra(treinador2);	
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(pkmn2, pkmn1, ataque2, treinador2);	
+				ataque2.extra(treinador1);
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
 				return;
 			
 				
-			} else //MUDAR // se o p2 tem mais speed
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
-				dano(*pkmn1, pkmn2, ataque1);	
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+			} else if ((*pkmn1).speed < (*pkmn2).speed) // se o p2 tem mais speed
+				dano(pkmn2, pkmn1, ataque2, treinador2);	
+				ataque2.extra(treinador1);
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);
+				ataque1.extra(treinador2);	
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
 				return;
 				
 			// se ambos pokemon tiverem speed igual e os ataques tiverem prioridade igual
 			
 			if(rand() % 2 == 0) // vai no aleatorio
 			{
-				dano(*pkmn1, pkmn2, ataque1);	
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);	
+				ataque1.extra(treinador2);
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(pkmn2, pkmn1, ataque2, treinador2);	
+				ataque2.extra(treinador1);
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
 				return;
 			}
 			else 
-				dano(*pkmn2, pkmn1, ataque2);	
-				if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
-				dano(*pkmn1, pkmn2, ataque1);	
-				if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+				dano(pkmn2, pkmn1, ataque2, treinador2);
+				ataque2.extra(treinador1);	
+				if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+				dano(pkmn1, pkmn2, ataque1, treinador1);
+				ataque1.extra(treinador2);	
+				if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
 				return;
 		
 		break;
 		
 		case 2: // Caso o pokemon do treinador 1 morreu antes de atacar por causa de alguma condição
 		
-			dano(*pkmn2, pkmn1, ataque2);	
-			if (checarcondicao(pkmn1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
+			dano(pkmn2, pkmn1, ataque2, treinador2);	
+			ataque2.extra(treinador1); 
+			if (checarcondicao(treinador1) == 1) {printf("%s desmaiou!", (*pkmn1).nome); trocarPoke(treinador1); return;}
 			return;
 			
 		break;
 		
 		case 3: // Caso o pokemon do treinador 2 morreu antes de atacar por causa de alguma condição
 		
-			dano(*pkmn1, pkmn2, ataque1);
-			if (checarcondicao(pkmn2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
+			dano(pkmn1, pkmn2, ataque1, treinador1);
+			ataque1.extra(treinador2);
+			if (checarcondicao(treinador2) == 1) {printf("%s desmaiou!", (*pkmn2).nome); trocarPoke(treinador2); return;}
 			return;	
 			
 		break;		
