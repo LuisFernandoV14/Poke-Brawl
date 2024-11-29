@@ -17,8 +17,6 @@ struct Ataque;
 struct Player;
 struct Campo;
 
-///////////////////////AAAAAAAAAAAAAAAAAAAAAAaaaaaaaaaaaaa o treco de incializar tem que resetar os buffs
-// resolvido
 
 // Estrutura do ataque
 typedef struct Ataque{
