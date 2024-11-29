@@ -215,7 +215,7 @@ int main() {
     printatreinador(treinador1);
     printatreinador(treinador2);
 
-    // Escolher os pokemons
+    // Escolha dos pokemons
     for (int j = 0; j < TIME_SIZE; j++) {
         printf("%s, escolha um Pokémon!\n\n", treinador1.nome);
         treinador1.timepokemon[j] = pkdex[escolhageral(pkdex)];
@@ -328,7 +328,7 @@ int main() {
 			
 			ataqueEscolhido2 = treinador2.pokemonAtivo->moveset[escolha - 1];
 			
-			//isso aqui faz o ataque "future sight" bater so daqui a dois turnos	
+			// faz o ataque "future sight" cumprir sua função de bater depois de dois turnos	
 			if(futuro2 > 0) {future_sight.extra(&treinador2, &treinador1); futuro2--;}
 			if(!strcmp(ataqueEscolhido2.nome, "Future Sight")) {futuro2 = 2;}
 			
@@ -434,7 +434,7 @@ int escolhageral(pkmn pkdex[]) {
         // Vai verificar se o pokemon já foi escolhido
         if (pkdex[option - 1].escolhido) {
             printf("Esse Pokémon já foi escolhido por outro treinador. Escolha outro Pokémon.\n\n");
-            continue; // Volta pro início do loop para escolher denovo
+            continue; // Volta pro início do loop para escolher outro pokemon
         }
 
         // Exibe os poderzinhos dos bichinhos
@@ -452,7 +452,7 @@ int escolhageral(pkmn pkdex[]) {
 
     } while (confirmacao == 0 || pkdex[option - 1].escolhido);
 
-    // Marca o pokemon como escolhido antes de voltar praquela bagaça
+    // Marca o pokemon como escolhido antes de voltar
     pkdex[option - 1].escolhido = 1;
 
     return option - 1;
@@ -462,7 +462,7 @@ float pegarFraqueza(move ataque, pkmn alvo) {
 	if (strcmp(alvo.tipo1, alvo.tipo2) == 0) // Esse if existe para verificar se o pokémon tem só um tipo (tepig é fogo, emboar é fogo e lutador, por exemplo)
 	{ return listaDeFraquezas(ataque, alvo.tipo1); }
 	
-	else // Checa a efetividade do ataque contra os dois tipos do pokemon 
+	else // Checa a efetividade do ataque contra os dois tipos do outro pokemon 
 	{ return listaDeFraquezas(ataque, alvo.tipo1) * listaDeFraquezas(ataque, alvo.tipo2); } 
 }
 
@@ -502,7 +502,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	dano *= 0.55;
 	
 	
-	// troca o dano do ataque do agressor pelo dano de se bater caso ele esteja confuso //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	// troca o dano do ataque do agressor no alvo para si mesmo caso ele esteja confuso //
 	if(!strcmp(ataque.nome, " ")) { // (o unico ataque com o nome " " é quando pokemon se bate em confusão, e ele tem dano fixo) 
 		dano = 35;
 		(*agressor).hp -= dano;
@@ -515,7 +515,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	// Chama uma função que devolve o quão efetivo é o ataque contra o alvo e guarda o valor em uma variável
 	float efetividade = pegarFraqueza(ataque, *alvo);
 	
-	// Em pokemon tem um negocio chamado STAB, se o  ataque for do mesmo tipo do agressor ele dá mais dano (STAB significa Same Type Attack Bonus)
+	// Em pokemon existe uma situação chamada STAB, caso o ataque for do mesmo tipo do agressor ele dá mais dano (STAB significa Same Type Attack Bonus)
 	if(!(strcmp((*agressor).tipo1, ataque.tipo)) || !(strcmp((*agressor).tipo2, ataque.tipo))){ dano *= 1.5; }
 	
 	// Esse switch case decide se o ataque é crítico ou não, dependendo do multiplicador de crítico do ataque
@@ -560,7 +560,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	
 	if((*treinador).pokemonAtivo->buffsEdebuffs[6] < 0) {
 		(*treinador).pokemonAtivo->buffsEdebuffs[6] += 1;
-		return 0; // pokemon nao ataca (acontece depois de usar giga impact, o pokemon fica 1 turno sem atacar)
+		return 0; // pokemon nao pode atacar (acontece depois de usar giga impact, o pokemon fica 1 turno sem atacar)
 	}
 	
 	(*alvo).hp -= (int)dano;
@@ -579,7 +579,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 
 }
 
-float listaDeFraquezas(move ataque, char tipo[]) {
+float listaDeFraquezas(move ataque, char tipo[]) { //fraquezas e vantagens de cada tipo dos pokemons
 
 	switch (ataque.tipo[0])
 	{
@@ -847,7 +847,7 @@ void inicializa(pkmn *pokemon) {
 	strcpy((*pokemon).efeitoTemp, " ");
 }
 
-int checarcondicao(player *treinador) {
+int checarcondicao(player *treinador) { // checa a condição de status atual imposta nos pokemons
 	if (!strcmp((*treinador).pokemonAtivo->efeitoFixo, "desmaiado")) { return 1; }
 	if (!strcmp((*treinador).pokemonAtivo->efeitoTemp, "hesitante")) {
 		(*treinador).pokemonAtivo->buffsEdebuffs[5] -= 1;
@@ -898,7 +898,6 @@ int checarcondicao(player *treinador) {
 		}
 	}
 
-	//ai aqui tinha que ter que efeitos a gente tem no jogo, que eu n sei
 	return 0;
 }
 
@@ -995,7 +994,7 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 		
 		break;
 		
-		case 2: // Caso o pokemon do treinador 1 morreu antes de atacar por causa de alguma condição
+		case 2: // Caso o pokemon do treinador 1 tenha morrido antes de atacar por causa de alguma condição
 		
 			dano(pkmn2, pkmn1, ataque2, treinador2);	
 			// ataque2.extra(treinador2, treinador1); 
@@ -1004,7 +1003,7 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 			
 		break;
 		
-		case 3: // Caso o pokemon do treinador 2 morreu antes de atacar por causa de alguma condição
+		case 3: // Caso o pokemon do treinador 2 tenha morrido antes de atacar por causa de alguma condição
 		
 			dano(pkmn1, pkmn2, ataque1, treinador1);
 			// ataque1.extra(treinador1, treinador2);
@@ -1053,7 +1052,7 @@ int checarArena(player *treinador) {
 	return 0;
 }
 
-void danoDaArena(player *treinador, int x) {
+void danoDaArena(player *treinador, int x) { //checa o efeito ativo na arena que pode afetar os danos dos pokemons
 	if (x == 1) {	
 		if ((*treinador).ladoDaArena->rodadas == 1) {return;}
 		
