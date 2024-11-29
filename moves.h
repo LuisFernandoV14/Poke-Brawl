@@ -7,7 +7,8 @@
 #include <stdlib.h> // aparente mente a time.h não funciona sem a stdlib (???)
 
 #define TOTAL_PKMNS 30
-#define TIME_SIZE 6
+#define TIME_SIZE 2
+
 
 /* ----------- Declarações das estruturas ----------- */
 
@@ -61,13 +62,17 @@ typedef struct Campo{
 typedef struct Player {
     char nome[15]; // Nome dos jogadores
     pkmn timepokemon[6]; // Pokémons dos jogadores
+    int numero;
     pkmn *pokemonAtivo;
     struct Player *rival;
     campo *ladoDaArena;
+    int desmaiados;
 } player;
 
 /* ----------- Declarações das estruturas ----------- */
 
+
+void F_future_sight(player *treinador1, player *treinador2);
 
 
 /* ----------- Declaração das funções de efeitos de status ----------- */
@@ -112,7 +117,15 @@ void hesitar(player *treinador) {
 	(*treinador).pokemonAtivo->buffsEdebuffs[5] = 1;
 }
 
-void diminuirAtaqueEspecial(player *treinador){
+void envenenar(player *treinador){
+
+	printf("\n%s está envenenado!", (*treinador).pokemonAtivo->nome);
+	strcpy((*treinador).pokemonAtivo->efeitoFixo, "envenenado");
+	(*treinador).pokemonAtivo->hp -= (*treinador).pokemonAtivo->hpMaximo / 8.0;
+
+}
+
+void diminuirAtaqueEspecial(player *treinador, float x){
 	
 	if ((*treinador).pokemonAtivo->buffsEdebuffs[2] <= -6)
 	{
@@ -122,11 +135,11 @@ void diminuirAtaqueEspecial(player *treinador){
 	
 	else
 	(*treinador).pokemonAtivo->buffsEdebuffs[2] -= 1;
-	(*treinador).pokemonAtivo->ataqueEspecial -= (*treinador).pokemonAtivo->ataqueEspecial *  11.0 / 100.0; // diminui em 11% o atkespecial por estágio
+	(*treinador).pokemonAtivo->ataqueEspecial -= (*treinador).pokemonAtivo->ataqueEspecial *  x / 100.0; // diminui em x% o atkespecial por estágio
 	printf("\nO ataque especial de %s diminuiu!", (*treinador).pokemonAtivo->nome);
 }
 
-void diminuirDefesaEspecial(player *treinador){
+void diminuirDefesaEspecial(player *treinador, float x){
 	
 	if ((*treinador).pokemonAtivo->buffsEdebuffs[3] <= -6)
 	{
@@ -136,11 +149,11 @@ void diminuirDefesaEspecial(player *treinador){
 	
 	else
 	(*treinador).pokemonAtivo->buffsEdebuffs[3] -= 1;
-	(*treinador).pokemonAtivo->defesaEspecial -= (*treinador).pokemonAtivo->defesaEspecial *  11.0 / 100.0; // diminui em 11% a defespecial por estágio
+	(*treinador).pokemonAtivo->defesaEspecial -= (*treinador).pokemonAtivo->defesaEspecial *   x / 100.0; // diminui em x% a defespecial por estágio
 	printf("\nA defesa especial de %s diminuiu!", (*treinador).pokemonAtivo->nome);
 }
 
-void diminuirDefesa(player *treinador){
+void diminuirDefesa(player *treinador, float x){
 	
 	if ((*treinador).pokemonAtivo->buffsEdebuffs[1] <= -6)
 	{
@@ -150,11 +163,11 @@ void diminuirDefesa(player *treinador){
 	
 	else
 	(*treinador).pokemonAtivo->buffsEdebuffs[1] -= 1;
-	(*treinador).pokemonAtivo->defesa -= (*treinador).pokemonAtivo->defesa *  11.0 / 100.0; // diminui em 11% a def por estágio
+	(*treinador).pokemonAtivo->defesa -= (*treinador).pokemonAtivo->defesa *  x / 100.0; // diminui em x% a def por estágio
 	printf("\nA defesa de %s diminuiu!", (*treinador).pokemonAtivo->nome);
 }
 
-void aumentarAtaque(player *treinador) {
+void aumentarAtaque(player *treinador,  float x) {
 	
 	if ((*treinador).pokemonAtivo->buffsEdebuffs[0] >= 6)
 	{
@@ -164,18 +177,40 @@ void aumentarAtaque(player *treinador) {
 	
 	else
 	(*treinador).pokemonAtivo->buffsEdebuffs[0] += 1;
-	(*treinador).pokemonAtivo->ataque += (*treinador).pokemonAtivo->ataque *  11.0 / 100.0; // aumenta em 11% o atk por estágio
+	(*treinador).pokemonAtivo->ataque += (*treinador).pokemonAtivo->ataque *  x / 100.0; // aumenta em x% o atk por estágio
 	printf("\nO ataque de %s aumentou!", (*treinador).pokemonAtivo->nome);
 
 }
 
-void envenenar(player *treinador){
-
-	printf("\n%s está envenenado!", (*treinador).pokemonAtivo->nome);
-	strcpy((*treinador).pokemonAtivo->efeitoFixo, "envenenado");
-	(*treinador).pokemonAtivo->hp -= (*treinador).pokemonAtivo->hpMaximo / 8.0;
+void aumentarDefesa(player *treinador,  float x) {
+	
+	if ((*treinador).pokemonAtivo->buffsEdebuffs[1] >= 6)
+	{
+		printf("\nA defesa de %s não pode mais ser aumentada.", (*treinador).pokemonAtivo->nome);
+		return;
+	}
+	
+	else
+	(*treinador).pokemonAtivo->buffsEdebuffs[1] += 1;
+	(*treinador).pokemonAtivo->defesa += (*treinador).pokemonAtivo->defesa *  x / 100.0; // aumenta em x% a def por estágio
+	printf("\nA defesa de %s aumentou!", (*treinador).pokemonAtivo->nome);
 
 }
+
+void diminuirAtaque(player *treinador, float x){
+	
+	if ((*treinador).pokemonAtivo->buffsEdebuffs[0] <= -6)
+	{
+		printf("\nO ataque de %s não pode mais ser diminuida.", (*treinador).pokemonAtivo->nome);
+		return;
+	}
+	
+	else
+	(*treinador).pokemonAtivo->buffsEdebuffs[0] -= 1;
+	(*treinador).pokemonAtivo->ataque -= (*treinador).pokemonAtivo->ataque *  x / 100.0; // diminui em x% o atk por estágio
+	printf("\nO ataque de %s diminuiu!", (*treinador).pokemonAtivo->nome);
+}
+
 
 /* ----------- Declaração das funções de efeitos de status ----------- */
 
@@ -235,7 +270,7 @@ void F_shadow_ball(player *treinador1, player *treinador2){
 	
 	if( rand() % 100 < 20 ) // shadow ball tem 20% de chance de diminuir a defesa especial do alvo
 	{
-		diminuirDefesaEspecial(treinador2);
+		diminuirDefesaEspecial(treinador2, 20);
 	}
 }
 
@@ -249,7 +284,7 @@ void F_earth_power(player *treinador1, player *treinador2){
 	
 	if(rand() % 100 < 10) // earth power tem 10% de chance de diminuir a defesa especial do alvo
 	{
-		diminuirDefesaEspecial(treinador2);
+		diminuirDefesaEspecial(treinador2, 20);
 	}
 }
 
@@ -292,7 +327,7 @@ void F_StruggleBug(player *treinador1, player  *treinador2){
 		return;
 	}
 	
-	diminuirAtaqueEspecial(treinador2);
+	diminuirAtaqueEspecial(treinador2, 40);
 }
 
 void F_blast_burn(player *treinador1, player  *treinador2){
@@ -410,14 +445,14 @@ void F_zen_headbutt(player *treinador1, player  *treinador2) {
 
 void F_crunch(player *treinador1, player  *treinador2){
 	if (rand() % 100 < 20 ) {
-		diminuirDefesa(treinador2);
+		diminuirDefesa(treinador2, 20);
 	}
 }
 
 void F_metal_claw(player *treinador1, player  *treinador2) {
 	if(rand() % 100 < 10)
 	{
-		aumentarAtaque(treinador1); 
+		aumentarAtaque(treinador1, 20); 
 	}
 }
 
@@ -429,15 +464,47 @@ void F_fly(player *treinador1, player  *treinador2) {
 		return;
 	}
 	
-	if((*treinador1).pokemonAtivo->buffsEdebuffs[6] != 14){
-		printf("\n%s alçoou voo", (*treinador1).pokemonAtivo->nome);
-		(*treinador1).pokemonAtivo->buffsEdebuffs[6] = 14; // a função checarcondicao() procura pelo numero 14 para ver se o pokemon está voando ou não	
+	printf("\n%s alçoou voo", treinador1->pokemonAtivo->nome);
+	
+	strcpy(treinador1->ladoDaArena->efeitoAtivo, "ausente");
+	treinador1->ladoDaArena->rodadas = 2;
+}
+
+void F_dig(player *treinador1, player  *treinador2) {
+	
+	if(((*treinador1).pokemonAtivo->buffsEdebuffs[6] < 0)) {
+		printf("\n%s está muito cansado para se mover!", (*treinador1).pokemonAtivo->nome);
+		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
+		treinador1->ladoDaArena->rodadas = 1;
+		return;
 	}
 	
-	else
+	printf("\n%s cavou um buraco!", treinador1->pokemonAtivo->nome);
 	
-	printf("\n%s atacou em um incrivel rajante!");
-	(*treinador1).pokemonAtivo->buffsEdebuffs[6] = 0;
+	strcpy(treinador1->ladoDaArena->efeitoAtivo, "ausente");
+	treinador1->ladoDaArena->rodadas = 3;
+}
+
+void F_rasante(player *treinador1, player  *treinador2) {
+	
+	if(((*treinador1).pokemonAtivo->buffsEdebuffs[6] < 0)) {
+		printf("\n%s está muito cansado para se mover!", (*treinador1).pokemonAtivo->nome);
+		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
+		treinador1->ladoDaArena->rodadas = 1;
+		return;
+	}
+	
+	if(treinador1->ladoDaArena->rodadas == 3) {
+		printf("\n%s emergiu da terra em um poderoso ataque!", treinador1->pokemonAtivo->nome);
+		strcpy(treinador1->ladoDaArena->efeitoAtivo, " ");
+		treinador1->ladoDaArena->rodadas = 1;
+	}
+	
+	if(treinador1->ladoDaArena->rodadas == 2) {
+		printf("\n%s desceu em um rasante incrível", treinador1->pokemonAtivo->nome);
+		strcpy(treinador1->ladoDaArena->efeitoAtivo, " ");
+		treinador1->ladoDaArena->rodadas = 1;
+	}
 	
 }
 
@@ -595,7 +662,7 @@ void F_Uturn(player *treinador1,  player *treinador2){
 		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
 		return;
 	}
-	
+	extern int trocarPoke(player *treinador); // essa linha garante para o compilador que existe uma função trocarPoke() em um arquivo externo
 	trocarPoke(treinador1);
 
 }
@@ -619,7 +686,7 @@ void F_Tailwind(player *treinador1,  player *treinador2){
 void F_Toxic(player *treinador1,  player *treinador2){
 
 	if(((*treinador1).pokemonAtivo->buffsEdebuffs[6] < 0)) {
-		printf("\n%s está muito cansado para se mover!");
+		printf("\n%s está muito cansado para se mover!", treinador1->nome);
 		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
 		return;
 	}
@@ -644,7 +711,7 @@ void F_Toxic(player *treinador1,  player *treinador2){
 void F_SludgeBomb(player *treinador1,  player *treinador2){
 	
 	if(((*treinador1).pokemonAtivo->buffsEdebuffs[6] < 0)) {
-		printf("\n%s está muito cansado para se mover!");
+		printf("\n%s está muito cansado para se mover!", treinador1->nome);
 		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
 		return;
 	}
@@ -680,7 +747,7 @@ void F_AcidArmor(player *treinador1,  player *treinador2){
 		return;
 	}
 
-	aumentarDefesa((*treinador), 30);//fazer função
+	aumentarDefesa(treinador1, 30);
 	printf("A defesa de %s aumentou!", (*treinador1).pokemonAtivo->nome);
 		//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
@@ -727,7 +794,7 @@ void F_MeteorMash(player *treinador1,  player *treinador2){
 
 	if(rand() % 100 < 20){
 
-		aumentarAtaque(*treinador1, 20); //mudar para as funções de buff e debuff receberem a porcentagem.	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+		aumentarAtaque(treinador1, 20); //mudar para as funções de buff e debuff receberem a porcentagem.	AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 	}
 	
@@ -753,8 +820,8 @@ void F_DoubleTeam(player *treinador1,  player *treinador2){
 		return;
 	}
 
-	for(int i = 0;  i < 4, i++){
-		if((*treinador2).pokemonAtivo->moveset[i] != 2) {
+	for(int i = 0;  i < 4; i++){
+		if((*treinador2).pokemonAtivo->moveset[i].categoria != 2) {
 			(*treinador2).pokemonAtivo->moveset[1].accuracy -= 5;
 		}
 	}
@@ -785,8 +852,8 @@ void F_BulkUp(player *treinador1,  player *treinador2){
 		return;
 	}
 
-	aumentarAtaque((*treinador1), 30);
-	aumentarDefesa((*treinador1), 30); //fazer função aumentarDefesa // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa
+	aumentarAtaque(treinador1, 30);
+	aumentarDefesa(treinador1, 30);
 
 }
 
@@ -856,7 +923,7 @@ void F_Moonblast(player *treinador1, player  *treinador2) {
 	srand(time(NULL));
 	
 	if(rand() % 100 < 30){
-		diminuirAtaqueEspecial((*treinador2), 20);
+		diminuirAtaqueEspecial(treinador2, 20);
 	}
 
 }
@@ -887,6 +954,25 @@ void F_ConfuseRay(player *treinador1, player  *treinador2) {
 
 	confundir(treinador2);
 
+}
+
+void F_charm(player *treinador1, player *treinador2) {
+	diminuirAtaque(treinador2, 30);
+}
+
+void F_Psych_Up(player *treinador1, player *treinador2) {
+	for(int i = 0; i < 5; i++) {
+		treinador1->pokemonAtivo->buffsEdebuffs[i] = treinador2->pokemonAtivo->buffsEdebuffs[i];
+	}
+	
+	printf("\n%s está tão imponente quanto %s!", treinador1->pokemonAtivo->nome, treinador2->pokemonAtivo->nome);
+	
+	treinador1->pokemonAtivo->ataque += (treinador1->pokemonAtivo->ataque * 30 / 100) * treinador1->pokemonAtivo->buffsEdebuffs[0];
+	treinador1->pokemonAtivo->defesa += (treinador1->pokemonAtivo->defesa * 30 / 100) * treinador1->pokemonAtivo->buffsEdebuffs[1];
+	treinador1->pokemonAtivo->ataqueEspecial += (treinador1->pokemonAtivo->ataqueEspecial * 30 / 100) * treinador1->pokemonAtivo->buffsEdebuffs[2];
+	treinador1->pokemonAtivo->defesaEspecial += (treinador1->pokemonAtivo->defesaEspecial * 30 / 100) * treinador1->pokemonAtivo->buffsEdebuffs[3];
+	treinador1->pokemonAtivo->speed += (treinador1->pokemonAtivo->speed * 30 / 100) * treinador1->pokemonAtivo->buffsEdebuffs[4];
+	
 }
 
 //template
@@ -926,7 +1012,8 @@ move earth_power = {"Earth Power", "terra", 10, 1, 90, 0, 100, 1, F_earth_power}
 move protect = {"Protect", "normal", 10, 0, 2, 4, 100, 1, F_protect};                     
 
 //Declaração dos Ataques de Salamence
-move fly = {"Fly", "voador", 15, 0, 90, 0, 95, 1, F_fly};                
+move fly = {"Fly", "voador", 15, 2, 90, 0, 95, 1, F_fly};              
+move rasante = {"Fly", "voador", 15, 1, 90, 0, 95, 1, F_rasante};              
 // move outrage = {"Outrage", "dragão", 10, 0, 120, 0, 100, 1};      
 move giga_impact = {"Giga Impact", "normal", 5, 0, 150, 0, 90, 1, F_giga_impact}; 
 move dual_wingbeat = {"Dual Wingbeat", "voador", 15, 0, 40, 0, 90, 1, F_dual_wingbeat}; 
@@ -939,64 +1026,64 @@ move whirlpool = {"Whirlpool", "água", 15, 1, 35, 0, 85, 1, F_whirlpool};
 
 //Declaração dos Ataques de Pidgeot
 move mirror_move = {"Mirror Move", "voador", 15, 2, 0, 0, 100, 1, F_sem_efeito}; 
-move u_turn = {"U-turn", "inseto", 20, 0, 70, 0, 100, 1};          
-move quick_attack = {"Quick Attack", "normal", 30, 0, 40, 1, 100, 1}; 
-move tailwind = {"Tailwind", "voador", 20, 2, 0, 0, 100, 1};       
+move u_turn = {"U-turn", "inseto", 20, 0, 70, 0, 100, 1, F_Uturn};          
+move quick_attack = {"Quick Attack", "normal", 30, 0, 40, 1, 100, 1, F_sem_efeito}; 
+move tailwind = {"Tailwind", "voador", 20, 2, 0, 0, 100, 1, F_Tailwind};       
 
 // Declaração dos Ataques de Muk
-move toxic = {"Toxic", "veneno", 10, 2, 0, 0, 90, 1};            
-move sludge_bomb = {"Sludge Bomb", "veneno", 10, 1, 90, 0, 100, 1}; 
-move acid_armor = {"Acid Armor", "veneno", 20, 2, 0, 0, 100, 1};  
+move toxic = {"Toxic", "veneno", 10, 2, 0, 0, 90, 1, F_Toxic};            
+move sludge_bomb = {"Sludge Bomb", "veneno", 10, 1, 90, 0, 100, 1, F_SludgeBomb}; 
+move acid_armor = {"Acid Armor", "veneno", 20, 2, 0, 0, 100, 1, F_AcidArmor};  
 //move giga_impact = {"Giga Impact", "normal", 5, 0, 150, 0, 90, 1};  
 
 // Declaração dos Ataques de Alakazam
-move future_sight = {"Future Sight", "psíquico", 10, 1, 120, 0, 100, 1};
-move future_sight_pressagio = {"presságio", "psíquico", 10, 2, 0, 0, 100, 1}; 
-move speed_swap = {"Speed Swap", "psíquico", 10, 2, 0, 0, 100, 1};        
+move future_sight = {"Future Sight", "psíquico", 10, 1, 120, 0, 100, 1, F_future_sight};
+move future_sight_pressagio = {"presságio", "psíquico", 10, 1, 120, 0, 100, 1, F_sem_efeito}; // impede que o future sight entre em loop infinito 
+move speed_swap = {"Speed Swap", "psíquico", 10, 2, 0, 0, 100, 1, F_SpeedSwap};        
 move zen_headbutt = {"Zen Headbutt", "psíquico", 15, 0, 80, 0, 90, 1, F_zen_headbutt};    
-move psycho_cut = {"Psycho Cut", "psíquico", 15, 0, 70, 0, 100, 2};      
+move psycho_cut = {"Psycho Cut", "psíquico", 15, 0, 70, 0, 100, 2}; // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA     
 
 //Declaração dos Ataques de Tyranitar
 move stealth_rock = {"Stealth Rock", "pedra", 10, 2, 0, 0, 100, 1, F_stealth_rock};   
-move payback = {"Payback", "sombrio", 10, 0, 50, 0, 100, 1};          
+move payback = {"Payback", "sombrio", 10, 0, 50, 0, 100, 1}; // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA         
 move sand_tomb = {"Sand Tomb", "terra", 15, 2, 35, 0, 85, 1, F_sand_tomb};      
 move crunch = {"Crunch", "sombrio", 15, 0, 80, 0, 100, 1, F_crunch};            
 
 //Declaração dos Ataques de Metagross
-move metal_claw = {"Metal Claw", "ferro", 15, 0, 50, 0, 95, 1};         
+move metal_claw = {"Metal Claw", "ferro", 15, 0, 50, 0, 95, 1, F_sem_efeito};         
 move psyshock = {"Psyshock", "psíquico", 10, 1, 80, 0, 100, 1, F_sem_efeito};        
-move steel_beam = {"Steel Beam", "ferro", 5, 1, 140, 0, 95, 1};         
-move meteor_mash = {"Meteor Mash", "ferro", 15, 0, 90, 0, 90, 1};       
+move steel_beam = {"Steel Beam", "ferro", 5, 1, 140, 0, 95, 1, F_SteelBeam};         
+move meteor_mash = {"Meteor Mash", "ferro", 15, 0, 90, 0, 90, 1, F_MeteorMash};       
 
 //Declaração dos Ataques de Greninja
-move water_shuriken = {"Water Shuriken", "água", 15, 1, 15, 0, 100, 1}; 
-move cut = {"Cut", "normal", 30, 0, 50, 0, 95, 1};                   
-move aerial_ace = {"Aerial Ace", "voador", 20, 0, 60, 0, 100, 1};     
-move double_team = {"Double Team", "normal", 15, 2, 0, 0, 100, 1};    
+move water_shuriken = {"Water Shuriken", "água", 15, 1, 15, 0, 100, 1, F_WaterShuriken}; 
+move cut = {"Cut", "normal", 30, 0, 50, 0, 95, 1, F_sem_efeito};                   
+move aerial_ace = {"Aerial Ace", "voador", 20, 0, 60, 0, 100, 1, F_sem_efeito};     
+move double_team = {"Double Team", "normal", 15, 2, 0, 0, 100, 1, F_DoubleTeam};    
 
 //Declaração dos Ataques de Pinsir
-move x_scissor = {"X-Scissor", "inseto", 15, 0, 80, 0, 100, 1};       
-move false_swipe = {"False Swipe", "normal", 10, 0, 40, 0, 100, 1};    
-move dig = {"Dig", "terra", 10, 0, 80, 0, 100, 1};               
-move bulk_up = {"Bulk Up", "luta", 20, 2, 0, 0, 100, 1};           
+move x_scissor = {"X-Scissor", "inseto", 15, 0, 80, 0, 100, 1, F_sem_efeito};       
+move false_swipe = {"False Swipe", "normal", 10, 0, 40, 0, 100, 1, F_FalseSwipe};    
+move dig = {"Dig", "terra", 10, 0, 80, 0, 100, 1, F_dig};            
+move bulk_up = {"Bulk Up", "luta", 20, 2, 0, 0, 100, 1, F_BulkUp};           
 
 //Declaração dos Ataques de Electivire
-move thunder = {"Thunder", "elétrico", 10, 1, 110, 0, 70, 1};         
-move thunder_wave = {"Thunder Wave", "elétrico", 20, 0, 0, 0, 90, 1};  
-move thunder_punch = {"Thunder Punch", "elétrico", 15, 0, 75, 0, 100, 1}; 
-move supercell_slam = {"Supercell Slam", "elétrico", 5, 0, 100, 0, 95, 1}; 
+move thunder = {"Thunder", "elétrico", 10, 1, 110, 0, 70, 1, F_Thunder};         
+move thunder_wave = {"Thunder Wave", "elétrico", 20, 0, 0, 0, 90, 1, F_ThunderWave};  
+move thunder_punch = {"Thunder Punch", "elétrico", 15, 0, 75, 0, 100, 1, F_ThunderPunch}; 
+move supercell_slam = {"Supercell Slam", "elétrico", 5, 0, 100, 0, 95, 1, F_sem_efeito}; 
 
 //Declaração dos Ataques de Primarina
-move chilling_water = {"Chilling Water", "água", 15, 1, 50, 0, 100, 1}; 
-move draining_kiss = {"Draining Kiss", "fada", 15, 1, 50, 0, 100, 1};   
-move moonblast = {"Moonblast", "fada", 15, 1, 95, 0, 100, 1};         
+move chilling_water = {"Chilling Water", "água", 15, 1, 50, 0, 100, 1, F_ChillingWater}; 
+move draining_kiss = {"Draining Kiss", "fada", 15, 1, 50, 0, 100, 1, F_sem_efeito};
+move moonblast = {"Moonblast", "fada", 15, 1, 95, 0, 100, 1, F_Moonblast};         
 move aqua_jet = {"Aqua Jet", "normal", 30, 0, 2, 1, 100, 1, F_sem_efeito}; //água e 40           
 
 //Declaração dos Ataques de Honchkrow
 //move u_turn = {"U-turn", "inseto", 20, 0, 70, 0, 100, 1};             
-move night_shade = {"Night Shade", "fantasma", 15, 1, 0, 0, 100, 1};    
-move heat_wave = {"Heat Wave", "fogo", 5, 1, 95, 0, 90, 1};            
-move confuse_ray = {"Confuse Ray", "fantasma", 10, 2, 0, 0, 100, 1};    
+move night_shade = {"Night Shade", "fantasma", 15, 1, 0, 0, 100, 1, F_sem_efeito};    
+move heat_wave = {"Heat Wave", "fogo", 5, 1, 95, 0, 90, 1, F_HeatWave};            
+move confuse_ray = {"Confuse Ray", "fantasma", 10, 2, 0, 0, 100, 1, F_ConfuseRay};    
 
 //Declaração dos Ataques de Chandelure
 move substitute = {"Substitute", "normal", 10, 2, 0, 0, 100, 1};      
@@ -1005,8 +1092,8 @@ move flamethrower = {"Flamethrower", "fogo", 15, 1, 90, 0, 100, 1};
 move fire_spin = {"Fire Spin", "fogo", 15, 1, 35, 0, 85, 1};          
 
 //Declaração dos Ataques de Espeon
-move psych_up = {"Psych Up", "normal", 15, 2, 0, 0, 100, 1};           
-move charm = {"Charm", "fada", 20, 2, 0, 0, 100, 1};                  
+move psych_up = {"Psych Up", "normal", 15, 2, 0, 0, 100, 1, F_Psych_Up};           
+move charm = {"Charm", "fada", 20, 2, 0, 0, 100, 1, F_charm};                  
 //move draining_kiss = {"Draining Kiss", "fada", 15, 1, 50, 0, 100, 1};  
 //move body_slam = {"Body Slam", "normal", 15, 0, 85, 0, 100, 1};        
 
@@ -1131,5 +1218,30 @@ campo padrao1 = {" ", 1};
 };
 
 /* ----------- Declaração da pokedex ----------- */
+
+
+void F_future_sight(player *treinador1, player *treinador2) {
+	
+	if(((*treinador1).pokemonAtivo->buffsEdebuffs[6] < 0)) {
+		printf("\n%s está muito cansado para se mover!", (*treinador1).pokemonAtivo->nome);
+		(*treinador1).pokemonAtivo->buffsEdebuffs[6] += 1;
+		return;
+	}
+	
+	static int pressagio[2] = {0, 0};
+	
+	if(pressagio[treinador1->numero] > 0){
+		if(pressagio[treinador1->numero] == 2){
+			extern int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador);
+			dano(&pkdex[7], treinador2->pokemonAtivo, future_sight_pressagio, treinador1);
+			printf("\nO presságio de Alakazam se realizou!");
+			pressagio[treinador1->numero] = 0;
+		}
+		pressagio[treinador1->numero] += 1;
+	}
+	
+}
+
+
 
 #endif
