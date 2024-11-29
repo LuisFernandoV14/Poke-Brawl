@@ -481,7 +481,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	
 	// printf("\n   fiu fiu: %s %s %s ", (*agressor).nome, ataque.nome, (*alvo).nome);
 	
-	if(strcmp(ataque.nome, "Night Shade")) {(*alvo).hp -= 100; return 0;} // night shade sempre dá 100 de dano
+	if(!strcmp(ataque.nome, "Night Shade")) {(*alvo).hp -= 100; return 0;} // night shade sempre dá 100 de dano
 	
   	if (checarcondicao(treinador) == 4) {printf("\n%s hesitou!", (*agressor).nome); return 0;}
 	if (checarcondicao(treinador) == 6) {printf("\n%s está congelado e não conseguiu atacar!", (*agressor).nome); return 0;} 
@@ -583,7 +583,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	if (efetividade == 0) {printf("\n%s não tem efeito contra %s...\n", ataque.nome, (*alvo).nome);}
 	if (efetividade == 0.5) {printf("\n%s não é muito efetivo contra %s...\n", ataque.nome, (*alvo).nome);}
 	
-	if(strcmp(ataque.nome, "Draining Kiss")) {printf("\n%s recuperou vida!", (*agressor).nome); (*agressor).hp += dano * 3 / 4;}
+	if(!strcmp(ataque.nome, "Draining Kiss")) {printf("\n%s recuperou vida!", (*agressor).nome); (*agressor).hp += dano * 3 / 4;}
 	
 	Fim:
 	if ((*alvo).hp <= 0) {(*alvo).hp = 0; strcpy((*alvo).efeitoFixo, "desmaiado");} // (impede que o hp do alvo fique negativo e faz ele ficar desmaiado)
