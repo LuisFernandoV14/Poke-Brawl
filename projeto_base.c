@@ -192,20 +192,11 @@ int main() {
 		pkdex[29].moveset[3]=BulletPunch;
 	}
 	/* ----------- Atribuição dos ataques ----------- */
-
-//	dano muito pequeno talvez
-//	checar por fogo // sera
-//	checar por hesitante // sera
-//	checar por ataques de status // check
-//	protect infinito
-//	clear // em progresso
 	
 	// Declara e monta os jogadores
     player treinador1, treinador2;
     treinador1.rival = &treinador2;
 	treinador2.rival = &treinador1;
-//	strcpy(treinador1.nome, "BATE");
-//	strcpy(treinador2.nome, "APANHA");
 	
     printf("Digite o nome do primeiro treinador: ");
     scanf(" %[^\n]", treinador1.nome);
@@ -218,7 +209,7 @@ int main() {
 	  
     printf("Digite o nome do segundo treinador: ");
     scanf(" %[^\n]", treinador2.nome);
-      construirPlayer(&treinador2);
+    construirPlayer(&treinador2);
 
 	
     printatreinador(treinador1);
@@ -239,10 +230,6 @@ int main() {
         pkdex[treinador2.timepokemon[j].dex - 1].escolhido = 1;
         
         system(CLEAR);
-        
-        // não precisa mais disso aqui pq a função trocarPoke tem printatreinador tbm
-		// printatreinador(treinador1); 
-   		// printatreinador(treinador2);
     }		
 	
 	trocarPoke(&treinador1);    
@@ -483,8 +470,6 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	
 	srand(time(NULL));
 	
-	// printf("\n   fiu fiu: %s %s %s ", (*agressor).nome, ataque.nome, (*alvo).nome);
-	
 	if(!strcmp(ataque.nome, "Night Shade")) {(*alvo).hp -= 100; return 0;} // night shade sempre dá 100 de dano
 	
   	if (checarcondicao(treinador) == 4) {printf("\n%s hesitou!", (*agressor).nome); return 0;}
@@ -560,10 +545,9 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	
 	dano *= efetividade;
 	
-	ataque.extra(treinador, (*treinador).rival); //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-	 printf("\nteste");
+	ataque.extra(treinador, (*treinador).rival);
 	
-	if((*treinador).pokemonAtivo->buffsEdebuffs[6] >= 1 ) { // tem certos ataques que acertam múltiplas vezes //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	if((*treinador).pokemonAtivo->buffsEdebuffs[6] >= 1 ) { // tem certos ataques que acertam múltiplas vezes
 		
 		for(int c = 1; c <= (*treinador).pokemonAtivo->buffsEdebuffs[6]; c++)
 		{
@@ -574,14 +558,14 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 		(*treinador).pokemonAtivo->buffsEdebuffs[6] = 0;
 	}
 	
-	if((*treinador).pokemonAtivo->buffsEdebuffs[6] < 0) { //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	if((*treinador).pokemonAtivo->buffsEdebuffs[6] < 0) {
 		(*treinador).pokemonAtivo->buffsEdebuffs[6] += 1;
 		return 0; // pokemon nao ataca (acontece depois de usar giga impact, o pokemon fica 1 turno sem atacar)
 	}
 	
 	(*alvo).hp -= (int)dano;
 	
-	if(!strcmp(ataque.nome, "Giga Impact")) {(*treinador).pokemonAtivo->buffsEdebuffs[6] = -1;} //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+	if(!strcmp(ataque.nome, "Giga Impact")) {(*treinador).pokemonAtivo->buffsEdebuffs[6] = -1;} 
 	
 	if (efetividade >= 2) {printf("\n%s é super efetivo contra %s!\n", ataque.nome, (*alvo).nome);}
 	if (efetividade == 0) {printf("\n%s não tem efeito contra %s...\n", ataque.nome, (*alvo).nome);}
@@ -846,8 +830,6 @@ int trocarPoke(player *treinador) {
 			(*treinador).pokemonAtivo = &(*treinador).timepokemon[j];
 			printf("\n%s enviou %s para lutar!\n\n", (*treinador).nome, (*treinador).pokemonAtivo->nome);
 			inicializa((*treinador).pokemonAtivo);
-			printf("\n%s", treinador->ladoDaArena->efeitoAtivo);
-			printf("\n%d", treinador->ladoDaArena->rodadas);
 			if(!strcmp(treinador->ladoDaArena->efeitoAtivo, "Stealth Rock")) {danoDaArena(treinador, 1);  return 0;}
 			treinador->pokemonAtivo->hp -= checarArena(treinador);			
 			return 0;
@@ -1127,13 +1109,6 @@ void danoDaArena(player *treinador, int x) {
 	
 	return;
 }
-
-
-// tenho que botar a funcao de trocar o pokemon pra nao funcionar caso o pokemon ativo seja escolhido novamente
-// atribuir os ataques aos pokemon -> Luis Gustavo
-// dar continuação a mecanica de turnos de combate (no momento tem infinitos turnos)
-// criar a função dos ataques 
-// terminar a função checarCondicao
 
 /* ----- Fórmulas de cálculo de dano ----- //
 ((((2*LEVEL/5+2)*ATKSTAT*ATKPOWER/DEFSTAT)/50)+2) IFS: *STAB*WEAKNESS/RESISTANCE*CRITICAL*OTHER*(MARGIN/100)
