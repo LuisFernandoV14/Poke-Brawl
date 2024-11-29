@@ -705,7 +705,7 @@ void F_Toxic(player *treinador1,  player *treinador2){
 		}
 		else
 		{
-			envenenar(*treinador2);
+			envenenar(treinador2);
 		}
 
 }
@@ -734,7 +734,7 @@ void F_SludgeBomb(player *treinador1,  player *treinador2){
 		}
 		else
 		{
-			envenenar(*treinador2);
+			envenenar(treinador2);
 		}
 
 	}
