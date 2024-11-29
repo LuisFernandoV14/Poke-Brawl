@@ -187,7 +187,7 @@ int main() {
 		pkdex[28].moveset[3]=LeafStorm;		
 		//moves Lucario
 		pkdex[29].moveset[0]=SwordsDance;
-		pkdex[29].moveset[1]=MeteorMash;
+		pkdex[29].moveset[1]=meteor_mash;
 		pkdex[29].moveset[2]=CloseCombat;
 		pkdex[29].moveset[3]=BulletPunch;
 	}
@@ -369,7 +369,7 @@ void construirPlayer(player *treinador) {
 
 void checarDesmaiados(player *treinador) {
 	for(int j = 0; j < TIME_SIZE; j++) {
-		if(treinador->timepokemon[j].hp <= 0){
+		if(treinador->timepokemon[j].hp <= 0 || !strcmp(treinador->pokemonAtivo->efeitoFixo, "desmaiado") ){
 			treinador->desmaiados += 1;
 		}
 	}
