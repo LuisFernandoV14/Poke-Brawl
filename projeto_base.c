@@ -11,6 +11,7 @@
 
 
 //funcoes----------------------------------
+void checarDesmaiados(player *treinador);
 void construirPlayer(player *treinador);
 void printatreinador(player treinador);
 void imprimirpkdex(pkmn pokedex[]);
@@ -212,6 +213,8 @@ int main() {
 	  construirPlayer(&treinador1);
 	  treinador1.ladoDaArena = &padrao1;
 	  treinador2.ladoDaArena = &padrao2;
+	  treinador1.numero = 1;
+	  treinador2.numero = 2;
 	  
     printf("Digite o nome do segundo treinador: ");
     scanf(" %[^\n]", treinador2.nome);
@@ -248,17 +251,19 @@ int main() {
     system("pause");
     system(CLEAR);
     
-    move ataqueEscolhido1;
-    move ataqueEscolhido2;
+    move ataqueEscolhido1, ataqueEscolhido2;
+    int futuro1, futuro2;
     int escolha;
     
 	do{
 		system("pause");
 		system(CLEAR);
-		printf("\n\n%s HP: %d/%d", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->hp, treinador1.pokemonAtivo->hpMaximo);
+		printf("\n\nHP do %s: %d/%d", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->hp, treinador1.pokemonAtivo->hpMaximo);
 		printf("\n\n%s, o que deseja fazer?\n\n1. Atacar\n2. Trocar Pokemon Ativo\n R: ", treinador1.nome);
 		scanf("%d", &escolha);
 		
+		if(!strcmp(treinador1.ladoDaArena->efeitoAtivo, "ausente")) {dano(treinador1.pokemonAtivo, treinador2.pokemonAtivo, rasante, &treinador1);}
+			
 		if(escolha == 2) { trocarPoke(&treinador1); ataqueEscolhido1 = falho;}
 		if(escolha == 1) {
 			
@@ -282,11 +287,19 @@ int main() {
 				}
 			}
 		
+			
 			printf("\n\nQual ataque %s irá usar?\n\n1. %s \n2. %s\n3. %s\n4. %s\n  R: ", treinador1.pokemonAtivo->nome, treinador1.pokemonAtivo->moveset[0], treinador1.pokemonAtivo->moveset[1], treinador1.pokemonAtivo->moveset[2], treinador1.pokemonAtivo->moveset[3]);
 			scanf("%d", &escolha);
 			
 			ataqueEscolhido1 = treinador1.pokemonAtivo->moveset[escolha - 1];
-	
+			
+		
+			if(!strcmp(ataqueEscolhido1.nome, "Fly")) {ataqueEscolhido1.extra(&treinador1, &treinador2); ataqueEscolhido1 = falho;}
+			
+			//isso aqui faz o ataque "future sight" bater so daqui a dois turnos	
+			if(futuro1 > 0) {future_sight.extra(&treinador1, &treinador2); futuro1--;}
+			if(!strcmp(ataqueEscolhido1.nome, "Future Sight")) {futuro1 = 2;}
+							
 			if (!strcmp(ataqueEscolhido1.nome, "Protect" )) {ataqueEscolhido1.extra(&treinador1, &treinador2); checarcondicao(&treinador1);} // protege o usuário
 			if (!strcmp(treinador2.pokemonAtivo->efeitoTemp, "protegido" )) {ataqueEscolhido1 = falho; checarcondicao(&treinador2); printf("\n%s se protegeu!", treinador2.pokemonAtivo->nome);} // faz o ataque falhar caso o pokemon inimigo esteja protegido
 	
@@ -297,6 +310,8 @@ int main() {
 		printf("\n\n%s HP: %d/%d", treinador2.pokemonAtivo->nome, treinador2.pokemonAtivo->hp, treinador2.pokemonAtivo->hpMaximo);
 		printf("\n%s, o que deseja fazer?\n\n1. Atacar\n2. Trocar Pokemon Ativo\n R: ", treinador2.nome);
 		scanf("%d", &escolha);
+		
+		if(!strcmp(treinador1.ladoDaArena->efeitoAtivo, "ausente")) {dano(treinador1.pokemonAtivo, treinador2.pokemonAtivo, rasante, &treinador1);}
 		
 		if(escolha == 2) { trocarPoke(&treinador2);ataqueEscolhido2 = falho;}
 		if(escolha == 1) {
@@ -326,18 +341,26 @@ int main() {
 			
 			ataqueEscolhido2 = treinador2.pokemonAtivo->moveset[escolha - 1];
 			
+			//isso aqui faz o ataque "future sight" bater so daqui a dois turnos	
+			if(futuro2 > 0) {future_sight.extra(&treinador2, &treinador1); futuro2--;}
+			if(!strcmp(ataqueEscolhido2.nome, "Future Sight")) {futuro2 = 2;}
 			
 			if (!strcmp(ataqueEscolhido2.nome, "Protect" )) {ataqueEscolhido1.extra(&treinador2, &treinador1); checarcondicao(&treinador2);} // protege o usuário
 			if (!strcmp(treinador1.pokemonAtivo->efeitoTemp, "protegido" )) {ataqueEscolhido2 = falho; checarcondicao(&treinador1); printf("\n%s se protegeu!", treinador1.pokemonAtivo->nome);} // faz o ataque falhar caso o pokemon inimigo esteja protegido
 		
 		}
 		
+		if(!strcmp(treinador1.ladoDaArena->efeitoAtivo,"ausente")) {ataqueEscolhido2 = falho;}
+		if(!strcmp(treinador2.ladoDaArena->efeitoAtivo,"ausente")) {ataqueEscolhido1 = falho;}
+		
 		FimDoTurno:		
 		combate(treinador1.pokemonAtivo, treinador2.pokemonAtivo, &treinador1, &treinador2, ataqueEscolhido1, ataqueEscolhido2);
 		checarArena(&treinador1);
 		checarArena(&treinador2);
-//		printf("\n %d %d\n", teste1, teste2);
-	} while(1);
+		
+		checarDesmaiados(&treinador1);
+		checarDesmaiados(&treinador2);
+	} while(treinador1.desmaiados < 6 || treinador2.desmaiados < 6 );
 
     return 0;
 }
@@ -346,8 +369,19 @@ void construirPlayer(player *treinador) {
     for (int i = 0; i < TIME_SIZE; i++) {
         strcpy(treinador->timepokemon[i].nome, "placeholder");
     }
+    
+    treinador->desmaiados = 0;
+	
 	system(CLEAR);
 	
+}
+
+void checarDesmaiados(player *treinador) {
+	for(int j = 0; j < TIME_SIZE; j++) {
+		if(treinador->timepokemon[j].hp <= 0){
+			treinador->desmaiados += 1;
+		}
+	}
 }
 
 void printatreinador(player treinador) {
@@ -447,6 +481,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	
 	// printf("\n   fiu fiu: %s %s %s ", (*agressor).nome, ataque.nome, (*alvo).nome);
 	
+	if(strcmp(ataque.nome, "Night Shade")) {(*alvo).hp -= 100; return 0;} // night shade sempre dá 100 de dano
 	
   	if (checarcondicao(treinador) == 4) {printf("\n%s hesitou!", (*agressor).nome); return 0;}
 	if (checarcondicao(treinador) == 6) {printf("\n%s está congelado e não conseguiu atacar!", (*agressor).nome); return 0;} 
@@ -461,6 +496,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	if(rand() % 99 + 1 > ataque.accuracy) // Checa se o ataque errou ou não
 	{
 		printf("\n\n%s errou o ataque!\n", (*agressor).nome);
+		if(!strcmp(ataque.nome,"Supercell Slam")) { (*agressor).hp /=2; }
 		return 0;
 	}
 
@@ -547,6 +583,7 @@ int dano(pkmn *agressor, pkmn *alvo, move ataque, player *treinador) { // Lembra
 	if (efetividade == 0) {printf("\n%s não tem efeito contra %s...\n", ataque.nome, (*alvo).nome);}
 	if (efetividade == 0.5) {printf("\n%s não é muito efetivo contra %s...\n", ataque.nome, (*alvo).nome);}
 	
+	if(strcmp(ataque.nome, "Draining Kiss")) {printf("\n%s recuperou vida!", (*agressor).nome); (*agressor).hp += dano * 3 / 4;}
 	
 	Fim:
 	if ((*alvo).hp <= 0) {(*alvo).hp = 0; strcpy((*alvo).efeitoFixo, "desmaiado");} // (impede que o hp do alvo fique negativo e faz ele ficar desmaiado)
@@ -884,6 +921,14 @@ void combate (pkmn *pkmn1, pkmn *pkmn2, player *treinador1, player *treinador2, 
 	int caminho = 1;
 	
 	srand(time(NULL));
+	
+	static int pressagio1 = 0;
+	static int pressagio2 = 0;
+	if(!strcmp(ataque1.nome, "Future Sight")) {printf("\n%s pressagiou %s...", pkmn1->nome, pkmn2->nome); ataque1 = falho;};
+	if(!strcmp(ataque2.nome, "Future Sight")) {printf("\n%s pressagiou %s...", pkmn2->nome, pkmn1->nome); ataque2 = falho;};
+	 
+	if(!strcmp(treinador1->ladoDaArena->efeitoAtivo, "ausente")) {printf("\n%s errou o ataque...", pkmn2->nome, pkmn1->nome); ataque2 = falho;};
+	if(!strcmp(treinador2->ladoDaArena->efeitoAtivo, "ausente")) {printf("\n%s errou o ataque...", pkmn1->nome, pkmn1->nome); ataque1 = falho;};
 
 	if(!strcmp(ataque1.nome, "Mirror Move")) {printf("\n%s copiou o ataque de %s!", pkmn1->nome, pkmn2->nome); ataque1 = ataque2;} 
 	if(!strcmp(ataque2.nome, "Mirror Move")) {printf("\n%s copiou o ataque de %s!", pkmn1->nome, pkmn2->nome); ataque2 = ataque1;} 
