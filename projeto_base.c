@@ -362,6 +362,10 @@ int main() {
 		checarDesmaiados(&treinador2);
 	} while(treinador1.desmaiados < 6 || treinador2.desmaiados < 6 );
 
+
+	if(treinador2.desmaiados > treinador1.desmaiados) {system(CLEAR); printf("\n%s ganhou o jogo!", treinador1.nome); }
+	if(treinador1.desmaiados > treinador2.desmaiados) {system(CLEAR); printf("\n%s ganhou o jogo!", treinador2.nome); }
+	
     return 0;
 }
 
