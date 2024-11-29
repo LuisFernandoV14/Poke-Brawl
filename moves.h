@@ -30,29 +30,32 @@ typedef struct Ataque{
     int prioridade;        // Prioridade do ataque
     int accuracy;          // Precisão do ataque (0-100)
     int critico;           // Multiplicador de chance de crítico
-    void (*extra)(struct Player*, struct Player*);
+    void (*extra)(struct Player*, struct Player*); // Função que chama o efeito especial do ataque
 } move;
 
  // Estrutura dos pokemon
 typedef struct Pokemon {
-    char nome[20];
-    int dex;
-    int hpMaximo; // existem funções, como queimar(), que usam o valor do hp total do pokemon, nao do atual
-    int hp;
+    char nome[20]; // Nome do pokemon
+    int dex; // Numero que o pokemon ocupa na pokedex
+    int hpMaximo; // Existem funções, como queimar(), que usam o valor do hp total do pokemon, nao do atual
+    int hp; // Vida atual do pokemon
     int ataque;
     int defesa;
     int ataqueEspecial;
     int defesaEspecial;
     int speed;
-    int escolhido; // 0 = não foi escolhido, 1 = escolhido
-    char tipo1[10];
-	char tipo2[10];
-	char efeitoFixo[20];
-	char efeitoTemp[15];
+    int escolhido; // 0 = não foi escolhido, 1 = escolhido, o mesmo pokemon nao pode ser escolhido duas vezes
+    // tipos do pokemon    
+    char tipo1[10]; 
+    char tipo2[10];
+    // efeitos do pokemon
+    char efeitoFixo[20];
+    char efeitoTemp[15];
+    // lista de golpes que o pokemon tem
     move moveset[4];
-    int buffsEdebuffs[8];
-	// 0 - ataque, 1 - defesa, 2 - atkEspecial, 3 - defEspecial, 4 - speed, 5 - numero de turnos para uma condição acabar, 6 - efeitos especificos de ataques
-	// 7 - efeitos que afetam o campo
+    int buffsEdebuffs[8]; // existem ataques que aumentam o status do pokemon, esse vetor serve como limite para cada status
+    // 0 - ataque, 1 - defesa, 2 - atkEspecial, 3 - defEspecial, 4 - speed, 5 - numero de turnos para uma condição acabar, 6 - efeitos especificos de ataques
+    // 7 - efeitos que afetam o campo
 } pkmn;
 
 typedef struct Campo{
@@ -62,12 +65,12 @@ typedef struct Campo{
 
 typedef struct Player {
     char nome[15]; // Nome dos jogadores
-    pkmn timepokemon[6]; // Pokémons dos jogadores
-    int numero;
-    pkmn *pokemonAtivo;
+    pkmn timepokemon[6]; // Time de pokemon dos jogadores
+    int numero; // numero do jogador, tem funções que utilizam esse numero para diferenciar o contador de ataques
+    pkmn *pokemonAtivo; // ponteiro para um pkmn do time do player, esse ponteiro que vai ser o alvo dos efeitos dos ataques
     struct Player *rival;
-    campo *ladoDaArena;
-    int desmaiados;
+    campo *ladoDaArena; 
+    int desmaiados; // numero de pokemon desmaiados, se este numero chegar a TIME_SIZE o jogo acaba
 } player;
 
 /* ----------- Declarações das estruturas ----------- */
